@@ -1,0 +1,40 @@
+# ── KiroCrew / agent tooling (machine-local) ──
+.kiro/
+
+# ── Archived / superseded material (kept local, not tracked) ──
+unimportant/
+Handoffs/
+
+# ── macOS / editor junk ──
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# ── Node / pnpm ──
+node_modules/
+.pnpm-store/
+pnpm-debug.log*
+npm-debug.log*
+*.log
+
+# ── Build output ──
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# ── AWS CDK ──
+cdk.out/
+.cdk.staging/
+
+# ── Env / secrets (never commit) ──
+.env
+.env.*
+!.env.example
+
+# ── Test / coverage ──
+coverage/
+.vitest/

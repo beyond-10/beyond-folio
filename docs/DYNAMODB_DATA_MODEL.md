@@ -8,21 +8,21 @@
 
 ## Section Index
 
-| #   | Section                                 | Status |
-| --- | --------------------------------------- | ------ |
-| 1   | Introduction & Scope                    | ✅     |
-| 2   | Design Principles                       | ✅     |
-| 3   | Entities & Relationships (Conceptual)   | ✅     |
-| 4   | Access Patterns Catalog                 | ✅     |
-| 5   | Design Decisions & Rationale (ADRs)     | ✅     |
-| 6   | Table Design Overview                   | ✅     |
-| 7   | Main Table — Item Definitions           | ✅     |
-| 8   | Global Secondary Indexes (GSIs)         | ✅     |
+| #   | Section                                           | Status |
+| --- | ------------------------------------------------- | ------ |
+| 1   | Introduction & Scope                              | ✅     |
+| 2   | Design Principles                                 | ✅     |
+| 3   | Entities & Relationships (Conceptual)             | ✅     |
+| 4   | Access Patterns Catalog                           | ✅     |
+| 5   | Design Decisions & Rationale (ADRs)               | ✅     |
+| 6   | Table Design Overview                             | ✅     |
+| 7   | Main Table — Item Definitions                     | ✅     |
+| 8   | Global Secondary Indexes (GSIs)                   | ✅     |
 | 9   | Auxiliary Tables — Price Cache (+ Sessions, §9.7) | ✅     |
-| 10  | Handling the Tricky Requirements        | ✅     |
-| 11  | Example Items (Sample Data)             | ✅     |
-| 12  | Access Pattern → Implementation Mapping | ✅     |
-| 13  | Open Questions & Assumptions            | ✅     |
+| 10  | Handling the Tricky Requirements                  | ✅     |
+| 11  | Example Items (Sample Data)                       | ✅     |
+| 12  | Access Pattern → Implementation Mapping           | ✅     |
+| 13  | Open Questions & Assumptions                      | ✅     |
 
 ---
 
@@ -175,20 +175,20 @@ These principles are the rules every later section obeys — read them as the gu
 
 Each entity below is justified solely by a feature or requirement in `FEATURES.md`. The "Materializes as" column previews where the concept physically lives, to keep the concept/table distinction front-of-mind.
 
-| #   | Entity                    | What it represents                                                                       | Why it exists (`FEATURES.md`)                                                       | Ownership                                    | Materializes as                                                  |
-| --- | ------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------- |
-| 1   | **User**                  | A trader/investor account holder                                                         | §2 privacy; the owner of everything                                                 | Per-user (the root)                          | Item in main table under `USER#<id>`                             |
-| 2   | **BrokerAccount**               | A specific brokerage account held by the user                                            | §5.10 accounts per user; Phase 1 = one per broker (multiple-per-broker = Phase 2); carries broker + currency | Per-user                                     | Item(s) in main table under the user                             |
-| 3   | **Trade**                 | A single security transaction (buy/sell of a stock, ETF, option, etc.)                   | §5.1 import, §5.3 unified history, §4 instrument types                              | Per-user                                     | Item(s) in main table under the user                             |
-| 4   | **Cashflow**              | A movement of money: deposit, withdrawal, dividend, fee — and the cash leg of a buy/sell | §5.4 XIRR needs every cash movement with its date                                   | Per-user                                     | Item(s) in main table under the user                             |
-| 5   | **ImportedFile**          | A record of a broker statement file that was uploaded                                    | §5.2 file-level dedup ("same file won't import twice")                              | Per-user                                     | Item in main table under the user                                |
-| 6   | **JournalEntry**          | One journal note on a trade: free-text + prediction + (later) evaluation result          | §5.5 multiple entries per trade; §5.6 evaluation                                    | Per-user                                     | Item(s) in main table under the user, nested beneath their trade |
-| 7   | **Tag**                   | A user-defined label (e.g. "swing trade", "Money Control")                               | §5.5 user-defined tags                                                              | Per-user                                     | Item in main table under the user                                |
-| 8   | **JournalEntry–Tag link** | The association attaching a tag to a journal entry (many-to-many)                        | §5.5 an entry can have many tags; a tag applies to many entries                     | Per-user                                     | Represented in main table (see §3.3 / §7)                        |
-| 9   | **TagScorecard**          | The running win/loss tally for one tag                                                   | §5.7 source scorecard, updated on each evaluation                                   | Per-user                                     | Counter item in main table under the user                        |
-| 10  | **SymbolMapping**         | A mapping from an old/changed ticker to its current equivalent                           | §5.9 corporate-action handling; admin-maintained                                    | **Global / admin-owned** (the one exception) | Item in main table under a global partition                      |
-| 11  | **PriceCache entry**      | The latest fetched market price for one symbol, short-lived                              | §5.8 up-to-date prices, reused briefly                                              | **Global**, ephemeral                        | Item in the **separate** price-cache table (§9)                  |
-| 12  | **BrokerMapper**          | An admin-maintained "recipe" for reading one broker file type: `columnMapping` + interpretation rules + `headerFingerprint` + `version` | §5.1 import ("reads and understands" broker files); §5.9 admin-maintained precedent | **Global / admin-owned** (like SymbolMapping) | Item in main table under a global/admin partition                |
+| #   | Entity                    | What it represents                                                                                                                      | Why it exists (`FEATURES.md`)                                                                                | Ownership                                     | Materializes as                                                  |
+| --- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------- | ---------------------------------------------------------------- |
+| 1   | **User**                  | A trader/investor account holder                                                                                                        | §2 privacy; the owner of everything                                                                          | Per-user (the root)                           | Item in main table under `USER#<id>`                             |
+| 2   | **BrokerAccount**         | A specific brokerage account held by the user                                                                                           | §5.10 accounts per user; Phase 1 = one per broker (multiple-per-broker = Phase 2); carries broker + currency | Per-user                                      | Item(s) in main table under the user                             |
+| 3   | **Trade**                 | A single security transaction (buy/sell of a stock, ETF, option, etc.)                                                                  | §5.1 import, §5.3 unified history, §4 instrument types                                                       | Per-user                                      | Item(s) in main table under the user                             |
+| 4   | **Cashflow**              | A movement of money: deposit, withdrawal, dividend, fee — and the cash leg of a buy/sell                                                | §5.4 XIRR needs every cash movement with its date                                                            | Per-user                                      | Item(s) in main table under the user                             |
+| 5   | **ImportedFile**          | A record of a broker statement file that was uploaded                                                                                   | §5.2 file-level dedup ("same file won't import twice")                                                       | Per-user                                      | Item in main table under the user                                |
+| 6   | **JournalEntry**          | One journal note on a trade: free-text + prediction + (later) evaluation result                                                         | §5.5 multiple entries per trade; §5.6 evaluation                                                             | Per-user                                      | Item(s) in main table under the user, nested beneath their trade |
+| 7   | **Tag**                   | A user-defined label (e.g. "swing trade", "Money Control")                                                                              | §5.5 user-defined tags                                                                                       | Per-user                                      | Item in main table under the user                                |
+| 8   | **JournalEntry–Tag link** | The association attaching a tag to a journal entry (many-to-many)                                                                       | §5.5 an entry can have many tags; a tag applies to many entries                                              | Per-user                                      | Represented in main table (see §3.3 / §7)                        |
+| 9   | **TagScorecard**          | The running win/loss tally for one tag                                                                                                  | §5.7 source scorecard, updated on each evaluation                                                            | Per-user                                      | Counter item in main table under the user                        |
+| 10  | **SymbolMapping**         | A mapping from an old/changed ticker to its current equivalent                                                                          | §5.9 corporate-action handling; admin-maintained                                                             | **Global / admin-owned** (the one exception)  | Item in main table under a global partition                      |
+| 11  | **PriceCache entry**      | The latest fetched market price for one symbol, short-lived                                                                             | §5.8 up-to-date prices, reused briefly                                                                       | **Global**, ephemeral                         | Item in the **separate** price-cache table (§9)                  |
+| 12  | **BrokerMapper**          | An admin-maintained "recipe" for reading one broker file type: `columnMapping` + interpretation rules + `headerFingerprint` + `version` | §5.1 import ("reads and understands" broker files); §5.9 admin-maintained precedent                          | **Global / admin-owned** (like SymbolMapping) | Item in main table under a global/admin partition                |
 
 > **Why are Trade and Cashflow separate concepts (rows 3 & 4)?** Because two features read different slices of the same activity. Unified history (§5.3) wants only _trades_ (buys/sells), while XIRR (§5.4) wants _every_ money movement — deposits, withdrawals, dividends, and fees, none of which are trades. A buy/sell is genuinely both: a Trade (for history) and a cashflow (for XIRR). Keeping them as distinct concepts lets each feature read exactly its slice without filtering the other's data out. _(See ADR-011.)_
 
@@ -212,17 +212,17 @@ Keeping faith with access-pattern-first (§2.1), some concepts a relational mode
 
 The relationships below drive key design in §7. Note how each relationship is realized the **DynamoDB way** — as co-located items or denormalized data — rather than as a foreign key into a separate table.
 
-| Relationship                     | Cardinality | How it's realized in DynamoDB                                                                               |
-| -------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
-| User → BrokerAccount             | 1 → many    | BrokerAccounts are items in the user's partition.                                                           |
-| User → Trade                     | 1 → many    | Trades are items in the user's partition (also tagged with their account).                                  |
-| User → Cashflow                  | 1 → many    | Cashflows are items in the user's partition (tagged with account + currency).                               |
-| BrokerAccount → Trade / Cashflow | 1 → many    | The `accountId` **and** `broker` are carried on each trade/cashflow item (denormalized); filter/index by broker (GSI1, §8.1). |
-| Trade → JournalEntry             | 1 → many    | Journal entries are items nested under their trade (sort-key prefix), so one query lists a trade's entries. |
-| JournalEntry ↔ Tag               | many ↔ many | Realized by link items + tag names denormalized onto the entry (resolved in §7).                            |
-| Tag → TagScorecard               | 1 → 1       | One counter item per tag, updated atomically on evaluation (§2.6).                                          |
-| Trade / Cashflow → SymbolMapping | many → 1    | Symbol on the item is resolved through the global mapping at import/valuation/evaluation.                   |
-| Trade / Cashflow → PriceCache    | many → 1    | Current price for a symbol looked up from the cache table (§9) during valuation/evaluation.                 |
+| Relationship                     | Cardinality | How it's realized in DynamoDB                                                                                                                                       |
+| -------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| User → BrokerAccount             | 1 → many    | BrokerAccounts are items in the user's partition.                                                                                                                   |
+| User → Trade                     | 1 → many    | Trades are items in the user's partition (also tagged with their account).                                                                                          |
+| User → Cashflow                  | 1 → many    | Cashflows are items in the user's partition (tagged with account + currency).                                                                                       |
+| BrokerAccount → Trade / Cashflow | 1 → many    | The `accountId` **and** `broker` are carried on each trade/cashflow item (denormalized); filter/index by broker (GSI1, §8.1).                                       |
+| Trade → JournalEntry             | 1 → many    | Journal entries are items nested under their trade (sort-key prefix), so one query lists a trade's entries.                                                         |
+| JournalEntry ↔ Tag               | many ↔ many | Realized by link items + tag names denormalized onto the entry (resolved in §7).                                                                                    |
+| Tag → TagScorecard               | 1 → 1       | One counter item per tag, updated atomically on evaluation (§2.6).                                                                                                  |
+| Trade / Cashflow → SymbolMapping | many → 1    | Symbol on the item is resolved through the global mapping at import/valuation/evaluation.                                                                           |
+| Trade / Cashflow → PriceCache    | many → 1    | Current price for a symbol looked up from the cache table (§9) during valuation/evaluation.                                                                         |
 | ImportedFile → BrokerMapper      | many → 1    | Each uploaded file is read via the one BrokerMapper matched to its header fingerprint (§3.1, ADR-015); no foreign key — the match is by fingerprint at import time. |
 
 > **Why nest JournalEntry under its Trade?** §5.5 says a trade can have many journal entries and the app always views them _in the context of a trade_. Nesting entries beneath their trade in the sort key makes "list all entries for this trade" a single, efficient query — the relationship is expressed by data locality, not a join. _(See ADR-004.)_
@@ -275,15 +275,15 @@ This is the **contract** the physical design (§6–§12) must satisfy: the conc
 
 ### 4.2 Import & Deduplication
 
-| ID   | Access pattern (the question)                                              | Driven by  | Type  |
-| ---- | -------------------------------------------------------------------------- | ---------- | ----- |
-| AP-5 | Has this exact file already been imported by this user? (file-level dedup) | §5.2       | Read  |
-| AP-6 | Record that a file has been imported (idempotent)                          | §5.2, §5.1 | Write |
-| AP-7 | Does this specific trade already exist for this user? (trade-level dedup)  | §5.2       | Read  |
-| AP-8 | Record an imported trade exactly once (idempotent)                         | §5.1, §5.2 | Write |
-| AP-9 | Record an imported cashflow exactly once (idempotent)                      | §5.1, §5.4 | Write |
+| ID    | Access pattern (the question)                                                                                                       | Driven by  | Type  |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------- | ----- |
+| AP-5  | Has this exact file already been imported by this user? (file-level dedup)                                                          | §5.2       | Read  |
+| AP-6  | Record that a file has been imported (idempotent)                                                                                   | §5.2, §5.1 | Write |
+| AP-7  | Does this specific trade already exist for this user? (trade-level dedup)                                                           | §5.2       | Read  |
+| AP-8  | Record an imported trade exactly once (idempotent)                                                                                  | §5.1, §5.2 | Write |
+| AP-9  | Record an imported cashflow exactly once (idempotent)                                                                               | §5.1, §5.4 | Write |
 | AP-33 | On upload, find the BrokerMapper whose `headerFingerprint` matches this file (auto-detect broker + file type; no match → hard stop) | §5.1       | Read  |
-| AP-34 | Admin: create / update / delete a BrokerMapper (idempotent on file type + `version`)   | §5.1, §5.9 | Write |
+| AP-34 | Admin: create / update / delete a BrokerMapper (idempotent on file type + `version`)                                                | §5.1, §5.9 | Write |
 
 > _AP-33 is a **direct key read** of the matched BrokerMapper (a global/admin item, §7), and AP-34 is a plain admin write of that same item — both by the item's own key, so **neither needs a new GSI**. The header-fingerprint match is done in app code against the small, fixed set of mappers (one per file type). See ADR-015._
 
@@ -292,7 +292,7 @@ This is the **contract** the physical design (§6–§12) must satisfy: the conc
 | ID    | Access pattern (the question)                                                           | Driven by   | Type |
 | ----- | --------------------------------------------------------------------------------------- | ----------- | ---- |
 | AP-10 | List all of a user's trades across all brokers/accounts, newest first (unified history) | §5.3        | Read |
-| AP-11 | List a user's trades filtered to one broker                                            | §5.10, §5.3 | Read |
+| AP-11 | List a user's trades filtered to one broker                                             | §5.10, §5.3 | Read |
 | AP-12 | Fetch a single trade by id                                                              | §5.5, §5.6  | Read |
 | AP-30 | List a user's trades filtered to one ticker (canonical symbol), newest first            | §5.3        | Read |
 
@@ -534,7 +534,7 @@ This section is the durable record of _why_ the model is shaped the way it is. E
 - **Consequences (trade-offs):** We eliminate a silent, permanent data-loss gap — the raw material for Phase-2 retroactive re-import and undo-an-import is guaranteed to exist. The cost is a **second persistence store** (S3 alongside DynamoDB) and pulling **PII-at-rest into Phase 1**; this is a deliberate, reversible trade (we can always delete stored bytes later) chosen over a loss that cannot be undone. Undo-an-import (Phase 2) must remember to delete **both** the `ImportedFile` record and its Trades/Cashflows **and** the S3 object at `s3Key`.
 - **Alternatives rejected:** (a) **Defer storage entirely** — store nothing in Phase 1; rejected because every file imported before Phase 2 would be an unrecoverable gap for a corrected mapper. (b) **Reserve the slot but store nothing** — same permanent gap for pre-Phase-2 imports. (c) **Build the undo/reprocess engine now** — scope creep with zero Phase-1 benefit; storing the bytes is the only part that is time-sensitive. (d) **Retain every uploaded file permanently, including rejected/cancelled ones** — rejected because it introduces an orphan-retention/cleanup problem; instead, unconfirmed uploads live only briefly in the `temp/` prefix and auto-expire, and **only a confirmed import is promoted** to a permanent key, giving the clean 1:1 mirror.
 - **Driven by:** the forward-only mapper-correction stance (ADR-015) and the Phase-2 features that depend on the raw file — retroactive re-import and **undo an import** (`PRD.md` §6, O6).
-- **Related ADRs:** ADR-005 (idempotent same-key overwrite is why orphans can't accumulate); ADR-015 (the mapper whose forward-only corrections these retained files will let Phase 2 reprocess); ADR-002 (the `<userId>/` key prefix keeps each user's files isolated); ADR-003 (a deliberate additional store — a different store *class* than ADR-003's table split, but the same 'purposeful exception to one store' spirit).
+- **Related ADRs:** ADR-005 (idempotent same-key overwrite is why orphans can't accumulate); ADR-015 (the mapper whose forward-only corrections these retained files will let Phase 2 reprocess); ADR-002 (the `<userId>/` key prefix keeps each user's files isolated); ADR-003 (a deliberate additional store — a different store _class_ than ADR-003's table split, but the same 'purposeful exception to one store' spirit).
 
 ---
 
@@ -548,14 +548,14 @@ This section is the durable record of _why_ the model is shaped the way it is. E
 
 Beyond Folio uses one main table for the durable, per-user domain, one auxiliary table for the ephemeral, shared price cache, a third **sessions table** for ephemeral auth refresh tokens (added by the TRD's authentication design, [`TRD.md`](./TRD.md) §5.4/§7.1), and a fourth **temporary waitlist table** that exists only during the invite-gated launch period and is removed at full launch (§9.8). The splits are deliberate and minimal — almost everything is consolidated in the main table, and each separate table earns its place because its data has a fundamentally different lifecycle (and, for sessions, a security-isolation need) from the rest.
 
-|                     | **`BeyondFolio`** (main table)                                                                                                                           | **Price-cache table** (auxiliary)                                                                                            | **Sessions table** (auxiliary)                                                                 |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Purpose**         | The system of record for everything a user owns, plus the one shared symbol-change list                                                                  | A short-lived cache of the latest market prices, so the app doesn't re-fetch the same price repeatedly                       | Short-lived auth **refresh tokens**, so a signed-in session can be renewed and revoked (TRD §5) |
-| **Ownership**       | Per-user (rooted at `USER#<userId>`), with a single global/admin-owned area for symbol mappings                                                          | Global / shared — one cached price per symbol, used by all users                                                             | Per-user auth state; accessed **only** by the auth code path (least-privilege IAM)             |
-| **Lifecycle**       | Durable — data persists until explicitly changed or deleted                                                                                              | Ephemeral — each entry auto-expires shortly after it is written (TTL — the database deletes the item once a set time passes) | Ephemeral — refresh tokens auto-expire via TTL; deleted on logout                              |
-| **What lives here** | User, BrokerAccount, Trade, Cashflow, ImportedFile, JournalEntry, Tag (+ journal↔tag links), TagScorecard, SymbolMapping (global), AuthIdentity (login lookup) | PriceCache + PriceHistory entries                                                                                            | Session (refresh-token) entries                                                                |
-| **Defined in**      | §7 (item definitions) and §8 (indexes)                                                                                                                   | §9                                                                                                                           | [`TRD.md`](./TRD.md) §5.4/§7.1 (owned by the TRD)                                               |
-| **Driven by**       | ADR-003 (single table by default), ADR-002 (per-user rooting)                                                                                            | ADR-003 (purposeful exception), ADR-008 (TTL expiry)                                                                         | ADR-003 (second purposeful exception), ADR-008 (TTL), ADR-013 (auth); TRD §5.4                 |
+|                     | **`BeyondFolio`** (main table)                                                                                                                                 | **Price-cache table** (auxiliary)                                                                                            | **Sessions table** (auxiliary)                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Purpose**         | The system of record for everything a user owns, plus the one shared symbol-change list                                                                        | A short-lived cache of the latest market prices, so the app doesn't re-fetch the same price repeatedly                       | Short-lived auth **refresh tokens**, so a signed-in session can be renewed and revoked (TRD §5) |
+| **Ownership**       | Per-user (rooted at `USER#<userId>`), with a single global/admin-owned area for symbol mappings                                                                | Global / shared — one cached price per symbol, used by all users                                                             | Per-user auth state; accessed **only** by the auth code path (least-privilege IAM)              |
+| **Lifecycle**       | Durable — data persists until explicitly changed or deleted                                                                                                    | Ephemeral — each entry auto-expires shortly after it is written (TTL — the database deletes the item once a set time passes) | Ephemeral — refresh tokens auto-expire via TTL; deleted on logout                               |
+| **What lives here** | User, BrokerAccount, Trade, Cashflow, ImportedFile, JournalEntry, Tag (+ journal↔tag links), TagScorecard, SymbolMapping (global), AuthIdentity (login lookup) | PriceCache + PriceHistory entries                                                                                            | Session (refresh-token) entries                                                                 |
+| **Defined in**      | §7 (item definitions) and §8 (indexes)                                                                                                                         | §9                                                                                                                           | [`TRD.md`](./TRD.md) §5.4/§7.1 (owned by the TRD)                                               |
+| **Driven by**       | ADR-003 (single table by default), ADR-002 (per-user rooting)                                                                                                  | ADR-003 (purposeful exception), ADR-008 (TTL expiry)                                                                         | ADR-003 (second purposeful exception), ADR-008 (TTL), ADR-013 (auth); TRD §5.4                  |
 
 > **Why these tables and not one, or many?** One table for the user-owned domain keeps related items together so they can be read in a single query (ADR-003), and rooting them at the user keeps each person's data private and co-located (ADR-002). The price cache is split out — not because prices are "different data," but because they are _shared_ (one price serves every user) and _ephemeral_ (they should auto-expire), which would otherwise pollute the durable per-user store and complicate automatic expiry (ADR-008). The sessions table is split out for the same ephemeral/TTL reason **plus** least-privilege credential isolation — only the auth path may read it, so no other component that touches the main table can reach session credentials (TRD §5.4). The fourth, the **waitlist table**, is a **temporary** launch-only store (§9.8) — short-lived scaffolding kept separate so it can simply be dropped once open signup is live, not part of the durable domain. We resist going further and splitting the user-owned domain into many tables, because that would reintroduce the cross-table stitching DynamoDB cannot do efficiently. _(See ADR-003, ADR-008; TRD §5.4/§7.1.)_
 
@@ -589,24 +589,24 @@ This exception is safe precisely because it is narrow and explicit: the global p
 
 The table below is a forward-looking index of where each concept from §3 physically lands, with an illustrative key root and a pointer to the section that defines it in full. It exists so a reader can see the whole placement at a glance before diving into the per-item detail of §7–§9. _(Key roots are illustrative — finalized in §7/§9.)_
 
-| Concept (§3)          | Home table        | Key root (illustrative)                                     | Filed under                                      | Defined in |
-| --------------------- | ----------------- | ----------------------------------------------------------- | ------------------------------------------------ | ---------- |
-| User                  | `BeyondFolio`     | `PK = USER#<userId>`                                        | The user (the root item)                         | §7         |
-| BrokerAccount         | `BeyondFolio`     | `PK = USER#<userId>`, `SK = ACCOUNT#...`                    | The owning user                                  | §7         |
-| Trade                 | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TRADE#<date>#...`               | The owning user, time-ordered                    | §7         |
-| Cashflow              | `BeyondFolio`     | `PK = USER#<userId>`, `SK = CASHFLOW#<currency>#<date>#...` | The owning user, by currency + time              | §7         |
-| ImportedFile          | `BeyondFolio`     | `PK = USER#<userId>`, `SK = FILE#<hash>`                    | The owning user (dedup key)                      | §7         |
-| JournalEntry          | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TRADE#...#JOURNAL#...`          | The owning user, nested under its trade          | §7         |
-| Tag                   | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TAG#<name>`                     | The owning user                                  | §7         |
-| JournalEntry↔Tag link | `BeyondFolio`     | `PK = USER#<userId>`, link items                            | The owning user                                  | §7         |
-| TagScorecard          | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TAGSCORE#<name>`                | The owning user (atomic counters)                | §7         |
-| SymbolMapping         | `BeyondFolio`     | `PK = GLOBAL#SYMBOLMAP`                                     | Global / admin (the exception)                   | §7         |
-| BrokerMapper          | `BeyondFolio`     | `PK = GLOBAL#BROKERMAPPER`, `SK = MAPPER#<fileType>`        | Global / admin (import recipe)                    | §7.13      |
-| AuthIdentity          | `BeyondFolio`     | `PK = AUTH#<provider>#<providerSub>`                        | Global / system (login lookup — not user-rooted) | §7.12      |
-| PriceCache entry      | Price-cache table | `PRICE#<canonicalSymbol>#<currency>`, with TTL             | Global / shared, ephemeral                       | §9         |
-| PriceHistory entry    | Price-cache table | `PRICEHIST#<canonicalSymbol>#<currency>`, with TTL         | Global / shared, ephemeral                       | §9.6       |
-| Session (refresh token) | Sessions table  | `USER#<userId>` + per-session id, with TTL                 | Per-user auth state; auth-path-only access       | [`TRD.md`](./TRD.md) §5.4/§7.1 |
-| Waitlist entry _(temporary)_ | Waitlist table | `email` (PK), with `joinedAt` / `source`               | Global launch-gating list; **retired at full launch** | §9.8 |
+| Concept (§3)                 | Home table        | Key root (illustrative)                                     | Filed under                                           | Defined in                     |
+| ---------------------------- | ----------------- | ----------------------------------------------------------- | ----------------------------------------------------- | ------------------------------ |
+| User                         | `BeyondFolio`     | `PK = USER#<userId>`                                        | The user (the root item)                              | §7                             |
+| BrokerAccount                | `BeyondFolio`     | `PK = USER#<userId>`, `SK = ACCOUNT#...`                    | The owning user                                       | §7                             |
+| Trade                        | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TRADE#<date>#...`               | The owning user, time-ordered                         | §7                             |
+| Cashflow                     | `BeyondFolio`     | `PK = USER#<userId>`, `SK = CASHFLOW#<currency>#<date>#...` | The owning user, by currency + time                   | §7                             |
+| ImportedFile                 | `BeyondFolio`     | `PK = USER#<userId>`, `SK = FILE#<hash>`                    | The owning user (dedup key)                           | §7                             |
+| JournalEntry                 | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TRADE#...#JOURNAL#...`          | The owning user, nested under its trade               | §7                             |
+| Tag                          | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TAG#<name>`                     | The owning user                                       | §7                             |
+| JournalEntry↔Tag link        | `BeyondFolio`     | `PK = USER#<userId>`, link items                            | The owning user                                       | §7                             |
+| TagScorecard                 | `BeyondFolio`     | `PK = USER#<userId>`, `SK = TAGSCORE#<name>`                | The owning user (atomic counters)                     | §7                             |
+| SymbolMapping                | `BeyondFolio`     | `PK = GLOBAL#SYMBOLMAP`                                     | Global / admin (the exception)                        | §7                             |
+| BrokerMapper                 | `BeyondFolio`     | `PK = GLOBAL#BROKERMAPPER`, `SK = MAPPER#<fileType>`        | Global / admin (import recipe)                        | §7.13                          |
+| AuthIdentity                 | `BeyondFolio`     | `PK = AUTH#<provider>#<providerSub>`                        | Global / system (login lookup — not user-rooted)      | §7.12                          |
+| PriceCache entry             | Price-cache table | `PRICE#<canonicalSymbol>#<currency>`, with TTL              | Global / shared, ephemeral                            | §9                             |
+| PriceHistory entry           | Price-cache table | `PRICEHIST#<canonicalSymbol>#<currency>`, with TTL          | Global / shared, ephemeral                            | §9.6                           |
+| Session (refresh token)      | Sessions table    | `USER#<userId>` + per-session id, with TTL                  | Per-user auth state; auth-path-only access            | [`TRD.md`](./TRD.md) §5.4/§7.1 |
+| Waitlist entry _(temporary)_ | Waitlist table    | `email` (PK), with `joinedAt` / `source`                    | Global launch-gating list; **retired at full launch** | §9.8                           |
 
 **Secondary query paths (GSIs), previewed.** A few access patterns ask a question that the primary `USER#<userId>` partition layout does not answer directly — they need to find items by something _other_ than the user-then-type-then-time path. These will be served by **Global Secondary Indexes** (a GSI is a secondary index — an alternate "filing system" over the same data that supports an extra query path). The three indexes that §8 will define are: **GSI1** — filtering trades to a single broker (AP-11); **GSI2** — listing journal entries by tag for the many-to-many relationship and scorecard (AP-21); and **GSI3** — filtering trades to a single ticker (trades-by-ticker, AP-30). (Unified trade history newest-first across all brokers (AP-10) and the per-currency date-ordered cashflow timeline for XIRR (AP-13) are served by the base table’s primary key, not a GSI.) The full index definitions — their keys, what they project, and which AP each serves — are deferred to §8; they are flagged here only so the forward map is complete.
 
@@ -656,17 +656,17 @@ A few conventions used throughout this section. **`PK`** is the partition key (t
 - **`PK`** = `USER#<userId>`
 - **`SK`** = `ACCOUNT#<accountId>`
 
-| Attribute     | Type   | Purpose                                                                              | Denorm? |
-| ------------- | ------ | ------------------------------------------------------------------------------------ | ------- |
-| `PK` _(key)_  | String | The owning user's folder                                                             | —       |
-| `SK` _(key)_  | String | `ACCOUNT#<accountId>` — distinguishes this account within the user                   | —       |
-| `entityType`  | String | `"BrokerAccount"`                                                                          | —       |
-| `accountId`   | String | Deterministic per-`(user, broker)` id — `acc_rh` / `acc_fid` / `acc_zer`; found-or-created by `(userId, broker)` (§3.1, ADR-005/ADR-015) | —       |
-| `broker`      | String | `"Robinhood"` / `"Fidelity"` / `"Zerodha"` (an attribute, not its own entity — §3.2) | —       |
-| `currency`    | String | `"USD"` or `"INR"` — the account's native currency (ADR-007)                         | —       |
+| Attribute     | Type   | Purpose                                                                                                                                                             | Denorm? |
+| ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `PK` _(key)_  | String | The owning user's folder                                                                                                                                            | —       |
+| `SK` _(key)_  | String | `ACCOUNT#<accountId>` — distinguishes this account within the user                                                                                                  | —       |
+| `entityType`  | String | `"BrokerAccount"`                                                                                                                                                   | —       |
+| `accountId`   | String | Deterministic per-`(user, broker)` id — `acc_rh` / `acc_fid` / `acc_zer`; found-or-created by `(userId, broker)` (§3.1, ADR-005/ADR-015)                            | —       |
+| `broker`      | String | `"Robinhood"` / `"Fidelity"` / `"Zerodha"` (an attribute, not its own entity — §3.2)                                                                                | —       |
+| `currency`    | String | `"USD"` or `"INR"` — the account's native currency (ADR-007)                                                                                                        | —       |
 | `accountType` | String | **Optional** — set only when the file states it (e.g. Zerodha `"Individual"`); left unset for single-account Fidelity and Robinhood in Phase 1 — never guessed (D9) | —       |
-| `displayName` | String | Friendly label for the UI                                                            | —       |
-| `createdAt`   | String | When the account was first seen/created                                              | —       |
+| `displayName` | String | Friendly label for the UI                                                                                                                                           | —       |
+| `createdAt`   | String | When the account was first seen/created                                                                                                                             | —       |
 
 > **Why list accounts as items under the user rather than a separate table?** "List a user's accounts" (AP-3) becomes a single prefix query (`PK = USER#<userId>`, `SK begins_with ACCOUNT#`) with no cross-table hop, and the account sits beside the trades and cashflows that reference it. _(Serves AP-3, AP-4; see ADR-002, ADR-003.)_
 
@@ -677,18 +677,18 @@ A few conventions used throughout this section. **`PK`** is the partition key (t
 - **`PK`** = `USER#<userId>`
 - **`SK`** = `FILE#<contentHash>`
 
-| Attribute     | Type   | Purpose                                                                                                 | Denorm? |
-| ------------- | ------ | ------------------------------------------------------------------------------------------------------- | ------- |
-| `PK` _(key)_  | String | The owning user's folder                                                                                | —       |
-| `SK` _(key)_  | String | `FILE#<contentHash>` — the content fingerprint _is_ the identity, so the same file maps to the same key | —       |
-| `entityType`  | String | `"ImportedFile"`                                                                                        | —       |
-| `contentHash` | String | Hash (content fingerprint) of the uploaded file                                                         | —       |
-| `broker`      | String | Which broker the file came from                                                                         | —       |
-| `fileName`    | String | Original file name (for display)                                                                        | —       |
-| `importedAt`  | String | When the import ran                                                                                     | —       |
-| `status`      | String | Import lifecycle state — `UPLOADED` → `PROCESSING` → `PREVIEW_READY` → `COMMITTING` → `COMPLETE` (plus `FAILED` / `CANCELLED`); polled by the UI (TRD §2.5, §10.8) | —       |
-| `summary`     | Map    | Counts of trades/cashflows created (for the import receipt)                                             | —       |
-| `s3Key`       | String | Key of the retained raw file in S3 — **relative only** (`<userId>/<contentHash>`); the bucket is a single app-config value, never a full `s3://…` URL (ADR-016). Attached at Confirm when the raw file is promoted from temp to the permanent key     | —       |
+| Attribute     | Type   | Purpose                                                                                                                                                                                                                                           | Denorm? |
+| ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `PK` _(key)_  | String | The owning user's folder                                                                                                                                                                                                                          | —       |
+| `SK` _(key)_  | String | `FILE#<contentHash>` — the content fingerprint _is_ the identity, so the same file maps to the same key                                                                                                                                           | —       |
+| `entityType`  | String | `"ImportedFile"`                                                                                                                                                                                                                                  | —       |
+| `contentHash` | String | Hash (content fingerprint) of the uploaded file                                                                                                                                                                                                   | —       |
+| `broker`      | String | Which broker the file came from                                                                                                                                                                                                                   | —       |
+| `fileName`    | String | Original file name (for display)                                                                                                                                                                                                                  | —       |
+| `importedAt`  | String | When the import ran                                                                                                                                                                                                                               | —       |
+| `status`      | String | Import lifecycle state — `UPLOADED` → `PROCESSING` → `PREVIEW_READY` → `COMMITTING` → `COMPLETE` (plus `FAILED` / `CANCELLED`); polled by the UI (TRD §2.5, §10.8)                                                                                | —       |
+| `summary`     | Map    | Counts of trades/cashflows created (for the import receipt)                                                                                                                                                                                       | —       |
+| `s3Key`       | String | Key of the retained raw file in S3 — **relative only** (`<userId>/<contentHash>`); the bucket is a single app-config value, never a full `s3://…` URL (ADR-016). Attached at Confirm when the raw file is promoted from temp to the permanent key | —       |
 
 > **Why make the content hash the key?** File-level dedup (§5.2) means "don't import the same file twice." If the key _is_ the file's fingerprint, **creating** it with a "only if it doesn't already exist" condition (`attribute_not_exists(PK)`) makes a duplicate upload fail harmlessly — no read-then-write race. This record is **created once at upload** (that create is the Layer-1 dedup gate) and then **updated through its `status` lifecycle** as the two-gate async import progresses (§10.8, TRD §2.5). The **`s3Key`** records where this file's original bytes were retained in S3 (ADR-016): the raw file is first staged in a temp location and, **on Confirm**, promoted to the permanent key `<userId>/<contentHash>` and recorded here — giving a clean one-file → one-permanent-object → one-record mirror (unconfirmed uploads are never promoted). _(Serves AP-5, AP-6; see ADR-005.)_
 
@@ -700,33 +700,33 @@ A few conventions used throughout this section. **`PK`** is the partition key (t
 - **`SK`** = `TRADE#<tradeDate>#<tradeId>` (date in `YYYY-MM-DD` so it sorts chronologically as text — ADR-009)
 - **`tradeId`** is a deterministic fingerprint of the trade's natural identity: `account + canonical symbol + datetime + side + quantity + price`, plus a **per-broker distinguisher** so two genuinely-distinct but identical-looking same-day rows don't collide — Zerodha uses its `brokerTradeId`, Fidelity its `cashBalance`, Robinhood a within-file `occurrence` index (D2, ADR-005).
 
-| Attribute              | Type   | Purpose                                                                                                             | Denorm?            |
-| ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `PK` _(key)_           | String | The owning user's folder                                                                                            | —                  |
-| `SK` _(key)_           | String | `TRADE#<tradeDate>#<tradeId>` — time-ordered, uniquely identified                                                   | —                  |
-| `entityType`           | String | `"Trade"`                                                                                                           | —                  |
-| `tradeId`              | String | Deterministic id from the trade's natural key (dedup)                                                               | —                  |
-| `accountId`            | String | Which account the trade belongs to (also drives GSI1, §8)                                                           | Yes (from BrokerAccount) |
-| `broker`               | String | Broker for display/filtering                                                                                        | Yes (from BrokerAccount) |
-| `symbol`               | String | The **canonical** ticker after symbol resolution (ADR-010)                                                          | —                  |
-| `rawSymbol`            | String | The symbol exactly as it appeared in the broker file (preserved as-imported)                                        | —                  |
-| `side`                 | String | `"BUY"` or `"SELL"`                                                                                                 | —                  |
-| `instrumentType`       | String | `"Stock"`, `"ETF"`, `"Option"`, `"IndexOption"`, `"MutualFund"`, etc. (§4 of FEATURES). In Phase 1 **all** options normalize to `"Option"`; distinguishing `"IndexOption"` (NIFTY/BANKNIFTY…) is a Phase-2 backfill (D10/OQ-T) | —                  |
-| `quantity`             | Number | Units traded (supports fractional shares — §4)                                                                      | —                  |
-| `price`                | Number | Per-unit price in the account's currency                                                                            | —                  |
-| `currency`             | String | `"USD"` / `"INR"` (ADR-007)                                                                                         | Yes (from BrokerAccount) |
-| `tradeDateTime`        | String | Full ISO-8601 execution timestamp (the date portion seeds the `SK`)                                                 | —                  |
-| `optionDetails`        | Map    | `{underlying, right, strike, expiry}` (plus `contractMultiplier`/`lotSize` where the broker implies it) — present only for options; parsed per broker (Fidelity `Symbol` code / RH `Description` / Zerodha `symbol`+`expiry_date`), safe-failing on non-match (D10)   | —                  |
-| `rawAction`            | String | The raw broker verb/code exactly as imported (RH `Trans Code`, Fidelity `Action`, Zerodha `trade_type`) — preserved for audit / future re-labelling (L8)              | —                  |
-| `eventType`            | String | **Optional** — for non-trade **position events** only (`"ASSIGNMENT"`, `"EXPIRATION"`, `"MERGER"`, `"SPLIT"`, `"RECLASS"`); absent on ordinary buys/sells (D3)         | —                  |
-| `securityId`           | String | **Optional** — stable security identifier where the file carries one: Zerodha `isin`, Robinhood CUSIP (from `Description`); **never fabricated** (absent on Fidelity, options, cash). Phase-2-facing (D8) | —                  |
-| `securityIdType`       | String | **Optional** — `"CUSIP"` or `"ISIN"`, identifying which scheme `securityId` uses (D8)                                | —                  |
-| `occurrence`           | Number | **Optional (Robinhood only)** — within-file occurrence index `#N` among identical same-day rows; the RH dedup distinguisher folded into `tradeId` (D2)               | —                  |
-| `brokerTradeId`        | String | **Optional (Zerodha only)** — the broker's own unique `trade_id`; the Zerodha dedup distinguisher folded into `tradeId` (D2)                                          | —                  |
-| `GSI1PK` _(index key)_ | String | `USER#<userId>#BROKER#<broker>` — puts this trade into GSI1 (trades-by-broker, §8.1). Present on every Trade.     | —                  |
-| `GSI1SK` _(index key)_ | String | `TRADE#<tradeDate>#<tradeId>` — time-orders the trade within GSI1                                                   | —                  |
-| `GSI3PK` _(index key)_ | String | `USER#<userId>#SYM#<canonicalSymbol>` — puts this trade into GSI3 (trades-by-ticker, §8.3). Present on every Trade. | —                  |
-| `GSI3SK` _(index key)_ | String | `TRADE#<tradeDate>#<tradeId>` — time-orders the trade within GSI3                                                   | —                  |
+| Attribute              | Type   | Purpose                                                                                                                                                                                                                                                             | Denorm?                  |
+| ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `PK` _(key)_           | String | The owning user's folder                                                                                                                                                                                                                                            | —                        |
+| `SK` _(key)_           | String | `TRADE#<tradeDate>#<tradeId>` — time-ordered, uniquely identified                                                                                                                                                                                                   | —                        |
+| `entityType`           | String | `"Trade"`                                                                                                                                                                                                                                                           | —                        |
+| `tradeId`              | String | Deterministic id from the trade's natural key (dedup)                                                                                                                                                                                                               | —                        |
+| `accountId`            | String | Which account the trade belongs to (also drives GSI1, §8)                                                                                                                                                                                                           | Yes (from BrokerAccount) |
+| `broker`               | String | Broker for display/filtering                                                                                                                                                                                                                                        | Yes (from BrokerAccount) |
+| `symbol`               | String | The **canonical** ticker after symbol resolution (ADR-010)                                                                                                                                                                                                          | —                        |
+| `rawSymbol`            | String | The symbol exactly as it appeared in the broker file (preserved as-imported)                                                                                                                                                                                        | —                        |
+| `side`                 | String | `"BUY"` or `"SELL"`                                                                                                                                                                                                                                                 | —                        |
+| `instrumentType`       | String | `"Stock"`, `"ETF"`, `"Option"`, `"IndexOption"`, `"MutualFund"`, etc. (§4 of FEATURES). In Phase 1 **all** options normalize to `"Option"`; distinguishing `"IndexOption"` (NIFTY/BANKNIFTY…) is a Phase-2 backfill (D10/OQ-T)                                      | —                        |
+| `quantity`             | Number | Units traded (supports fractional shares — §4)                                                                                                                                                                                                                      | —                        |
+| `price`                | Number | Per-unit price in the account's currency                                                                                                                                                                                                                            | —                        |
+| `currency`             | String | `"USD"` / `"INR"` (ADR-007)                                                                                                                                                                                                                                         | Yes (from BrokerAccount) |
+| `tradeDateTime`        | String | Full ISO-8601 execution timestamp (the date portion seeds the `SK`)                                                                                                                                                                                                 | —                        |
+| `optionDetails`        | Map    | `{underlying, right, strike, expiry}` (plus `contractMultiplier`/`lotSize` where the broker implies it) — present only for options; parsed per broker (Fidelity `Symbol` code / RH `Description` / Zerodha `symbol`+`expiry_date`), safe-failing on non-match (D10) | —                        |
+| `rawAction`            | String | The raw broker verb/code exactly as imported (RH `Trans Code`, Fidelity `Action`, Zerodha `trade_type`) — preserved for audit / future re-labelling (L8)                                                                                                            | —                        |
+| `eventType`            | String | **Optional** — for non-trade **position events** only (`"ASSIGNMENT"`, `"EXPIRATION"`, `"MERGER"`, `"SPLIT"`, `"RECLASS"`); absent on ordinary buys/sells (D3)                                                                                                      | —                        |
+| `securityId`           | String | **Optional** — stable security identifier where the file carries one: Zerodha `isin`, Robinhood CUSIP (from `Description`); **never fabricated** (absent on Fidelity, options, cash). Phase-2-facing (D8)                                                           | —                        |
+| `securityIdType`       | String | **Optional** — `"CUSIP"` or `"ISIN"`, identifying which scheme `securityId` uses (D8)                                                                                                                                                                               | —                        |
+| `occurrence`           | Number | **Optional (Robinhood only)** — within-file occurrence index `#N` among identical same-day rows; the RH dedup distinguisher folded into `tradeId` (D2)                                                                                                              | —                        |
+| `brokerTradeId`        | String | **Optional (Zerodha only)** — the broker's own unique `trade_id`; the Zerodha dedup distinguisher folded into `tradeId` (D2)                                                                                                                                        | —                        |
+| `GSI1PK` _(index key)_ | String | `USER#<userId>#BROKER#<broker>` — puts this trade into GSI1 (trades-by-broker, §8.1). Present on every Trade.                                                                                                                                                       | —                        |
+| `GSI1SK` _(index key)_ | String | `TRADE#<tradeDate>#<tradeId>` — time-orders the trade within GSI1                                                                                                                                                                                                   | —                        |
+| `GSI3PK` _(index key)_ | String | `USER#<userId>#SYM#<canonicalSymbol>` — puts this trade into GSI3 (trades-by-ticker, §8.3). Present on every Trade.                                                                                                                                                 | —                        |
+| `GSI3SK` _(index key)_ | String | `TRADE#<tradeDate>#<tradeId>` — time-orders the trade within GSI3                                                                                                                                                                                                   | —                        |
 
 > **Why build the date and a deterministic id into the trade's `SK`?** The date gives time-ordered history straight from the query (ADR-009), and deriving `tradeId` from the trade's natural identity makes trade-level dedup a conditional write rather than a fragile read-then-write (ADR-005). Storing both the canonical `symbol` and the original `rawSymbol` keeps the as-imported record intact while still letting history and pricing follow symbol changes (ADR-010). _(Serves AP-8, AP-12; with GSI1 also AP-11; see ADR-005, ADR-009, ADR-010.)_
 
@@ -737,22 +737,22 @@ A few conventions used throughout this section. **`PK`** is the partition key (t
 - **`PK`** = `USER#<userId>`
 - **`SK`** = `CASHFLOW#<currency>#<cashflowDate>#<cashflowId>`
 
-| Attribute        | Type   | Purpose                                                                            | Denorm?            |
-| ---------------- | ------ | ---------------------------------------------------------------------------------- | ------------------ |
-| `PK` _(key)_     | String | The owning user's folder                                                           | —                  |
-| `SK` _(key)_     | String | `CASHFLOW#<currency>#<date>#<cashflowId>` — currency-grouped, then time-ordered    | —                  |
-| `entityType`     | String | `"Cashflow"`                                                                       | —                  |
-| `cashflowId`     | String | Deterministic id from the movement's natural key (`account + type + currency + date + amount`) plus the same **per-broker distinguisher** as Trade — Zerodha id / Fidelity `cashBalance` / Robinhood `occurrence` (D2, ADR-005) | —                  |
-| `cashflowType`   | String | One of 10 (D4): `"BUY"`, `"SELL"`, `"DEPOSIT"`, `"WITHDRAWAL"`, `"DIVIDEND"`, `"INTEREST"`, `"INCOME"`, `"FEE"`, `"ROYALTY"`, `"ADJUSTMENT"` (raw broker code always kept in `rawAction`) | —                  |
-| `amount`         | Number | Signed amount in the native currency (sign convention covered in §10)              | —                  |
-| `currency`       | String | `"USD"` / `"INR"` — also the first `SK` segment (ADR-007)                          | —                  |
-| `accountId`      | String | Which account the money moved in                                                   | Yes (from BrokerAccount) |
-| `cashflowDate`   | String | `YYYY-MM-DD` of the movement (seeds the `SK`)                                      | —                  |
-| `relatedTradeId` | String | For `BUY`/`SELL`, links back to the Trade record this is the cash leg of (ADR-011) | Yes (from Trade)   |
-| `symbol`         | String | Canonical symbol, when the movement relates to a security (dividends, buys, sells) | Yes                |
-| `includeInXIRR`  | Boolean | Whether this cashflow counts in the per-currency XIRR timeline (AP-13): `true` for real money crossing the portfolio boundary; `false` for stored-but-excluded rows (e.g. SPAXX money-market sweeps, RSU-tax adjustments) (D1/D4) | —                  |
-| `cashBalance`    | Number | **Optional (Fidelity only)** — the running `Cash Balance` column; the Fidelity dedup distinguisher folded into `cashflowId` (D2)                | —                  |
-| `rawAction`      | String | The raw broker verb/code exactly as imported — preserved for audit / future re-labelling (L8)                       | —                  |
+| Attribute        | Type    | Purpose                                                                                                                                                                                                                           | Denorm?                  |
+| ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `PK` _(key)_     | String  | The owning user's folder                                                                                                                                                                                                          | —                        |
+| `SK` _(key)_     | String  | `CASHFLOW#<currency>#<date>#<cashflowId>` — currency-grouped, then time-ordered                                                                                                                                                   | —                        |
+| `entityType`     | String  | `"Cashflow"`                                                                                                                                                                                                                      | —                        |
+| `cashflowId`     | String  | Deterministic id from the movement's natural key (`account + type + currency + date + amount`) plus the same **per-broker distinguisher** as Trade — Zerodha id / Fidelity `cashBalance` / Robinhood `occurrence` (D2, ADR-005)   | —                        |
+| `cashflowType`   | String  | One of 10 (D4): `"BUY"`, `"SELL"`, `"DEPOSIT"`, `"WITHDRAWAL"`, `"DIVIDEND"`, `"INTEREST"`, `"INCOME"`, `"FEE"`, `"ROYALTY"`, `"ADJUSTMENT"` (raw broker code always kept in `rawAction`)                                         | —                        |
+| `amount`         | Number  | Signed amount in the native currency (sign convention covered in §10)                                                                                                                                                             | —                        |
+| `currency`       | String  | `"USD"` / `"INR"` — also the first `SK` segment (ADR-007)                                                                                                                                                                         | —                        |
+| `accountId`      | String  | Which account the money moved in                                                                                                                                                                                                  | Yes (from BrokerAccount) |
+| `cashflowDate`   | String  | `YYYY-MM-DD` of the movement (seeds the `SK`)                                                                                                                                                                                     | —                        |
+| `relatedTradeId` | String  | For `BUY`/`SELL`, links back to the Trade record this is the cash leg of (ADR-011)                                                                                                                                                | Yes (from Trade)         |
+| `symbol`         | String  | Canonical symbol, when the movement relates to a security (dividends, buys, sells)                                                                                                                                                | Yes                      |
+| `includeInXIRR`  | Boolean | Whether this cashflow counts in the per-currency XIRR timeline (AP-13): `true` for real money crossing the portfolio boundary; `false` for stored-but-excluded rows (e.g. SPAXX money-market sweeps, RSU-tax adjustments) (D1/D4) | —                        |
+| `cashBalance`    | Number  | **Optional (Fidelity only)** — the running `Cash Balance` column; the Fidelity dedup distinguisher folded into `cashflowId` (D2)                                                                                                  | —                        |
+| `rawAction`      | String  | The raw broker verb/code exactly as imported — preserved for audit / future re-labelling (L8)                                                                                                                                     | —                        |
 
 > **Why put currency _before_ the date in the cashflow `SK`?** Because XIRR is computed per currency with no conversion (ADR-007), and the timeline must be date-ordered (ADR-009). Grouping by currency first means "all USD cashflows in date order" is a single prefix query (`PK = USER#<userId>`, `SK begins_with CASHFLOW#USD#`) — one currency's complete timeline, already sorted, no separate index needed. A buy/sell produces _both_ this Cashflow and a Trade (§7.4), each written once (ADR-011, ADR-005). _(Serves AP-9, AP-13; see ADR-007, ADR-009, ADR-011.)_
 
@@ -908,17 +908,17 @@ _Note on "current holdings" (AP-14): there is intentionally **no** Holdings item
 - **`PK`** = `GLOBAL#BROKERMAPPER`
 - **`SK`** = `MAPPER#<fileType>` (one mapper per file type — `ROBINHOOD_ACTIVITIES`, `FIDELITY_SINGLE_ACC_ACTIVITY`, `ZERODHA_EQUITY`, `ZERODHA_FO`)
 
-| Attribute          | Type   | Purpose                                                                                                                     | Denorm? |
-| ------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `PK` _(key)_       | String | `GLOBAL#BROKERMAPPER` — the shared, admin-owned partition (ADR-015, ADR-012)                                               | —       |
-| `SK` _(key)_       | String | `MAPPER#<fileType>` — identifies which broker file type this mapper reads                                                   | —       |
-| `entityType`       | String | `"BrokerMapper"`                                                                                                            | —       |
-| `fileType`         | String | `"ROBINHOOD_ACTIVITIES"` / `"FIDELITY_SINGLE_ACC_ACTIVITY"` / `"ZERODHA_EQUITY"` / `"ZERODHA_FO"`                                       | —       |
-| `broker`           | String | `"Robinhood"` / `"Fidelity"` / `"Zerodha"` — which broker this file type belongs to                                         | —       |
-| `headerFingerprint`| String | The ordered, normalized (lowercased/trimmed) header column names joined (optionally hashed) — matched on upload to auto-detect broker + file type (AP-33); no match → hard stop (L2/L3) | —       |
-| `columnMapping`    | Map    | How each raw column becomes a normalized field, via exactly **four rule kinds**: **`direct`** (copy through), **`lookup`** (raw code → normalized value via a table), **`classify`** (interpret free text, e.g. Fidelity `Action`), **`extract`** (pull sub-fields from one column, e.g. the option-symbol parsers) (ADR-015) | —       |
-| `version`          | Number | Mapper version; an admin bump signals a corrected/updated mapper (corrections are forward-only in Phase 1 — L9/OQ-M)        | —       |
-| `updatedAt`        | String | When the mapper was last set by an admin                                                                                    | —       |
+| Attribute           | Type   | Purpose                                                                                                                                                                                                                                                                                                                       | Denorm? |
+| ------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `PK` _(key)_        | String | `GLOBAL#BROKERMAPPER` — the shared, admin-owned partition (ADR-015, ADR-012)                                                                                                                                                                                                                                                  | —       |
+| `SK` _(key)_        | String | `MAPPER#<fileType>` — identifies which broker file type this mapper reads                                                                                                                                                                                                                                                     | —       |
+| `entityType`        | String | `"BrokerMapper"`                                                                                                                                                                                                                                                                                                              | —       |
+| `fileType`          | String | `"ROBINHOOD_ACTIVITIES"` / `"FIDELITY_SINGLE_ACC_ACTIVITY"` / `"ZERODHA_EQUITY"` / `"ZERODHA_FO"`                                                                                                                                                                                                                             | —       |
+| `broker`            | String | `"Robinhood"` / `"Fidelity"` / `"Zerodha"` — which broker this file type belongs to                                                                                                                                                                                                                                           | —       |
+| `headerFingerprint` | String | The ordered, normalized (lowercased/trimmed) header column names joined (optionally hashed) — matched on upload to auto-detect broker + file type (AP-33); no match → hard stop (L2/L3)                                                                                                                                       | —       |
+| `columnMapping`     | Map    | How each raw column becomes a normalized field, via exactly **four rule kinds**: **`direct`** (copy through), **`lookup`** (raw code → normalized value via a table), **`classify`** (interpret free text, e.g. Fidelity `Action`), **`extract`** (pull sub-fields from one column, e.g. the option-symbol parsers) (ADR-015) | —       |
+| `version`           | Number | Mapper version; an admin bump signals a corrected/updated mapper (corrections are forward-only in Phase 1 — L9/OQ-M)                                                                                                                                                                                                          | —       |
+| `updatedAt`         | String | When the mapper was last set by an admin                                                                                                                                                                                                                                                                                      | —       |
 
 > **Why is BrokerMapper global/admin-owned, and why in the main table?** A broker's file format is a fact about the outside world, identical for every user and curated only by an admin (§5.1/§5.9) — so per-user copies would be wrong, and one shared partition means an admin's fix applies to everyone at once (ADR-015, same pattern as SymbolMapping/ADR-012). It stays in the main table because it is durable, long-lived config, isolated by its distinct `GLOBAL#BROKERMAPPER` partition; only the shared _and_ ephemeral price cache earns a separate table (ADR-003). On upload the app matches a file's header to a mapper's `headerFingerprint` (AP-33, a direct key read); an admin creates / updates / **deletes** a mapper (AP-34) — both by the item's own key, so neither needs a GSI. _(Serves AP-33, AP-34; see ADR-015, ADR-012, ADR-003.)_
 
@@ -942,10 +942,10 @@ A GSI re-files the same items under a different key (`GSInPK` / `GSInSK`) and Dy
 - **Projection:** the trade attributes needed to render a history row (symbol, side, quantity, price, currency, dates); `ALL` is acceptable for Phase 1 if simpler.
 - **Serves:** AP-11 (list a user's trades filtered to one broker).
 
-| Attribute | Value                            | Purpose                                                                  |
-| --------- | -------------------------------- | ------------------------------------------------------------------------ |
+| Attribute | Value                           | Purpose                                                                 |
+| --------- | ------------------------------- | ----------------------------------------------------------------------- |
 | `GSI1PK`  | `USER#<userId>#BROKER#<broker>` | Groups one broker's trades together, still scoped to the user (ADR-002) |
-| `GSI1SK`  | `TRADE#<tradeDate>#<tradeId>`    | Time-orders that broker's trades (ADR-009)                              |
+| `GSI1SK`  | `TRADE#<tradeDate>#<tradeId>`   | Time-orders that broker's trades (ADR-009)                              |
 
 > **Why an index for by-broker but not for unified history?** Unified history across _all_ brokers (AP-10) is already a base-table prefix query (`PK = USER#<userId>`, `SK begins_with TRADE#`, read in reverse for newest-first) — no index needed. Filtering to _one_ broker (AP-11) is the case the base table can't do efficiently, because broker isn't part of the trade's base `SK`; so GSI1 re-files trades by broker. Keeping `userId` inside `GSI1PK` ensures isolation survives into the index (ADR-002). In Phase 1 each user has **one account per broker**, so “by broker” and “by account” coincide; multiple accounts within one broker is a Phase-2 extension. _(Serves AP-11; see ADR-001, ADR-002, ADR-009, ADR-015.)_
 
@@ -1027,15 +1027,15 @@ A price cache is a pure look-up — "what is the current price of this symbol?" 
 - **`PK`** = `PRICE#<canonicalSymbol>#<currency>` (e.g. `PRICE#META#USD`, `PRICE#INFY#INR`)
 - **No `SK`** — each symbol-in-a-currency is a single cached item, addressed directly.
 
-| Attribute         | Type   | Purpose                                                                                  | Notes                                           |
-| ----------------- | ------ | ---------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `PK` _(key)_      | String | `PRICE#<canonicalSymbol>#<currency>` — the symbol-and-currency this price is for         | The canonical symbol (ADR-010)                  |
-| `entityType`      | String | `"PriceCache"` — self-identifies the item (§6.3)                                         | —                                               |
-| `canonicalSymbol` | String | The resolved ticker the price is for                                                     | —                                               |
-| `price`           | Number | The latest fetched price                                                                 | —                                               |
-| `currency`        | String | `"USD"` / `"INR"` — the currency the price is quoted in, and the key disambiguator (ADR-007) | Also the second key segment                 |
-| `asOf`            | String | ISO-8601 timestamp of when the price was fetched from the source                         | Used for the freshness check (§9.4)             |
-| `expiresAt`       | Number | **TTL** attribute — epoch seconds after which DynamoDB may auto-delete the item          | The table's TTL is configured on this attribute |
+| Attribute         | Type   | Purpose                                                                                      | Notes                                           |
+| ----------------- | ------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `PK` _(key)_      | String | `PRICE#<canonicalSymbol>#<currency>` — the symbol-and-currency this price is for             | The canonical symbol (ADR-010)                  |
+| `entityType`      | String | `"PriceCache"` — self-identifies the item (§6.3)                                             | —                                               |
+| `canonicalSymbol` | String | The resolved ticker the price is for                                                         | —                                               |
+| `price`           | Number | The latest fetched price                                                                     | —                                               |
+| `currency`        | String | `"USD"` / `"INR"` — the currency the price is quoted in, and the key disambiguator (ADR-007) | Also the second key segment                     |
+| `asOf`            | String | ISO-8601 timestamp of when the price was fetched from the source                             | Used for the freshness check (§9.4)             |
+| `expiresAt`       | Number | **TTL** attribute — epoch seconds after which DynamoDB may auto-delete the item              | The table's TTL is configured on this attribute |
 
 > **Why a single partition key with the currency baked in, and keyed by the canonical symbol?** A cache's only question is "give me the price for this symbol in this currency," which is a direct `GetItem` — a sort key would add nothing because there is no range to scan within a symbol. Folding the currency into the key prevents a same-named ticker in two currency markets (e.g. a USD listing vs an INR listing) from colliding on one entry — and, crucially, currency is a field every ingested trade already carries (unlike exchange, which only Zerodha supplies). Keying by the _canonical_ symbol means resolution (ADR-010) happens once, before the look-up, so a corporate-action rename (FB→META) doesn't fragment the cache across old and new tickers. _(Serves AP-28, AP-29; see ADR-003, ADR-008, ADR-010.)_
 
@@ -1073,7 +1073,7 @@ One caveat of TTL matters at read time: **automatic deletion is not instantaneou
 | `PK` _(key)_      | String | `PRICEHIST#<canonicalSymbol>#<currency>` — the symbol-and-currency this series is for            | Canonical symbol (ADR-010)                                         |
 | `entityType`      | String | `"PriceHistory"` — self-identifies the item (§6.3)                                               | —                                                                  |
 | `canonicalSymbol` | String | The resolved ticker the series is for                                                            | —                                                                  |
-| `currency`        | String | `"USD"` / `"INR"` — the currency the series is quoted in, and the key disambiguator (ADR-007)     | Also the second key segment                                        |
+| `currency`        | String | `"USD"` / `"INR"` — the currency the series is quoted in, and the key disambiguator (ADR-007)    | Also the second key segment                                        |
 | `series`          | List   | The daily price points (e.g. `[{ "d": "2026-01-02", "c": 185.12 }, …]`) — the chart's line       | ~1 year of daily closes                                            |
 | `fetchedDate`     | String | `YYYY-MM-DD` (source-market date) the series was last fetched — drives the 1-day freshness check | —                                                                  |
 | `expiresAt`       | Number | **TTL** attribute — epoch seconds after which DynamoDB may auto-delete the item                  | Set a few days out; the freshness check (not TTL) governs re-fetch |
@@ -1108,11 +1108,11 @@ One caveat of TTL matters at read time: **automatic deletion is not instantaneou
 - **`PK`** = `email` (the sign-up email is the natural identity; a repeat submission of the same email is an idempotent overwrite).
 - **No `SK`** — one item per email.
 
-| Attribute   | Type   | Purpose                                                        | Notes                          |
-| ----------- | ------ | ------------------------------------------------------------- | ------------------------------ |
-| `email` _(key)_ | String | The waitlisted email address                               | Natural identity               |
-| `joinedAt`  | String | ISO-8601 timestamp the email was submitted                    | —                              |
-| `source`    | String | Optional origin tag (e.g. landing-page campaign)              | Optional                       |
+| Attribute       | Type   | Purpose                                          | Notes            |
+| --------------- | ------ | ------------------------------------------------ | ---------------- |
+| `email` _(key)_ | String | The waitlisted email address                     | Natural identity |
+| `joinedAt`      | String | ISO-8601 timestamp the email was submitted       | —                |
+| `source`        | String | Optional origin tag (e.g. landing-page campaign) | Optional         |
 
 - **Ownership / lifecycle:** global (not per-user), **on-demand** capacity, no TTL — entries persist for the launch period, then the whole table is decommissioned at full launch.
 - **Access:** written by the public `POST /waitlist` endpoint (rate-limited, `PHASE_1_BACKLOG.md` E2); read only for launch operations. Not reachable from any authenticated user access pattern.
@@ -1242,11 +1242,13 @@ The stages run in this order:
 3. **Stage the raw file (temp).** The original pre-parse bytes are uploaded **directly to a temporary S3 location** (a `temp/` prefix), via a pre-signed URL so the bytes never transit the backend (TRD §7.2, §9.5). They are **promoted to the permanent key only on Confirm** (stage 7); abandoned uploads auto-expire from `temp/` and are never promoted.
 
    **— Gate 1: the user clicks _Proceed to Import_ →** stages 4–6 run **asynchronously** (`status=PROCESSING`); the user may leave and return.
+
 4. **Resolve the account — find-or-create by `(userId, broker)`.** The deterministic `accountId` (`acc_rh`/`acc_fid`/`acc_zer`) is written with a conditional put, so a first import creates the BrokerAccount and every later one reuses it; Zerodha's two files both resolve to `acc_zer` (§3.1, D9, ADR-005).
 5. **Minimal parse + Layer-2 record dedup (§10.1), then full normalization of NEW rows only (§10.9).** Parse the identity fields, compute each `tradeId`/`cashflowId` (with its per-broker distinguisher), and check existence — producing the **counts** (ready-to-import / duplicate / skipped-unsupported). Only rows that pass Layer-2 are then run through the per-broker normalization — the deliberate optimization of never fully normalizing a row that's already a known duplicate (L4). The **normalized batch is parked** in the temp S3 area alongside the raw file, and the record is set to `status=PREVIEW_READY`.
 6. **Preview → the user reviews.** The user sees the **counts** plus the **normalized rows that will be imported** and the **skipped/unsupported rows** (so they see exactly what will and won't be recorded, and how each row was interpreted). It is **read-only** — there is no edit button in Phase 1 (L5).
 
    **— Gate 2: the user clicks _Confirm_ →** stage 7 runs **asynchronously** (`status=COMMITTING`).
+
 7. **Confirm → write, in order (D14/ADR-016).** On confirm: **(a) promote the raw file** from the temp location to the permanent key `<userId>/<contentHash>`; **(b) update the `ImportedFile`** record with that `s3Key`; **(c) write the Trades/Cashflows** from the parked normalized batch, each guarded by `attribute_not_exists` (Layer-2 re-enforced at write); then delete the temp artifacts and set `status=COMPLETE`. This yields a clean one-file → one-permanent-S3-object → one-`ImportedFile` mirror; files that hard-stopped, or that the user never confirmed, are **never promoted** to the permanent key.
 
 **Forward-only correction (L9/OQ-M).** If a mapper is later found wrong and an admin corrects it, Phase 1 does **not** retroactively reprocess already-imported rows; the retained raw files (ADR-016) are what a Phase-2 re-import engine will use. The correction applies to subsequent imports only.
@@ -1978,8 +1980,8 @@ The real point of single-table design is visible when you list one user's partit
 
 | `PK`          | `SK`                                    | `entityType`   |
 | ------------- | --------------------------------------- | -------------- |
-| `USER#u_alex` | `ACCOUNT#acc_fid`                       | BrokerAccount   |
-| `USER#u_alex` | `ACCOUNT#acc_rh`                        | BrokerAccount   |
+| `USER#u_alex` | `ACCOUNT#acc_fid`                       | BrokerAccount  |
+| `USER#u_alex` | `ACCOUNT#acc_rh`                        | BrokerAccount  |
 | `USER#u_alex` | `CASHFLOW#USD#2026-02-01#cf_dep01`      | Cashflow       |
 | `USER#u_alex` | `CASHFLOW#USD#2026-02-10#cf_meta01`     | Cashflow       |
 | `USER#u_alex` | `CASHFLOW#USD#2026-03-15#cf_div01`      | Cashflow       |
@@ -2008,16 +2010,16 @@ The real point of single-table design is visible when you list one user's partit
 
 Priya's partition (`USER#u_priya`) is entirely separate — a query for Alex can never reach it (ADR-002):
 
-| `PK`           | `SK`                                | `entityType` |
-| -------------- | ----------------------------------- | ------------ |
+| `PK`           | `SK`                                | `entityType`  |
+| -------------- | ----------------------------------- | ------------- |
 | `USER#u_priya` | `ACCOUNT#acc_zer`                   | BrokerAccount |
-| `USER#u_priya` | `CASHFLOW#INR#2026-03-03#cf_infy01` | Cashflow     |
-| `USER#u_priya` | `CASHFLOW#INR#2026-03-25#cf_wd01`   | Cashflow     |
-| `USER#u_priya` | `FILE#sha256-zer-eq-71a004`         | ImportedFile |
-| `USER#u_priya` | `FILE#sha256-zer-fo-9c52d3`         | ImportedFile |
-| `USER#u_priya` | `PROFILE`                           | User         |
-| `USER#u_priya` | `TRADE#2026-03-03#t_infy01`         | Trade        |
-| `USER#u_priya` | `TRADE#2026-03-05#t_nifty01`        | Trade        |
+| `USER#u_priya` | `CASHFLOW#INR#2026-03-03#cf_infy01` | Cashflow      |
+| `USER#u_priya` | `CASHFLOW#INR#2026-03-25#cf_wd01`   | Cashflow      |
+| `USER#u_priya` | `FILE#sha256-zer-eq-71a004`         | ImportedFile  |
+| `USER#u_priya` | `FILE#sha256-zer-fo-9c52d3`         | ImportedFile  |
+| `USER#u_priya` | `PROFILE`                           | User          |
+| `USER#u_priya` | `TRADE#2026-03-03#t_infy01`         | Trade         |
+| `USER#u_priya` | `TRADE#2026-03-05#t_nifty01`        | Trade         |
 
 > **Why is this partition view worth showing?** It makes the abstract idea of §6.3 tangible: a dozen different record types live side by side in one folder, and a single `PK = USER#u_alex` query — narrowed by an `SK` prefix like `TRADE#` or `CASHFLOW#USD#` — pulls back exactly the slice a feature needs, in order, with no joins and no cross-user reach. _(See ADR-002, ADR-003, ADR-009.)_
 
@@ -2136,16 +2138,16 @@ Run Date,Action,Symbol,Quantity,Price,Commission,Fees,Amount,Cash Balance
 
 **3. Mapping the columns, by the four `columnMapping` kinds (§10.9, ADR-015):**
 
-| Raw field | Kind | Normalized result |
-| --- | --- | --- |
-| `Action = "YOU SOLD CLOSING TRANSACTION"` | **`classify`** (word-set) | `side = "SELL"`; raw text kept in `rawAction` |
-| `Symbol = -AMZN260320C230` | **`extract`** (option parser, D10) | `instrumentType = "Option"`; `optionDetails = {underlying: "AMZN", right: "CALL", strike: 230, expiry: "2026-03-20"}` |
-| `Run Date = 02/18/2026` | **`direct`** + date-normalize (D11) | `tradeDateTime`/`cashflowDate` → `2026-02-18` (month-first) |
-| `Quantity = -1` | **`direct`** | `quantity = 1`, side already SELL |
-| `Price = 6.30` | **`direct`** | `price = 6.30` |
-| `Amount = 629.31` | **`direct`** (net, L7) | Cashflow `amount = +629.31` (already net of commission+fees) |
-| `Commission = 0.65`, `Fees = 0.04` | display metadata (L7) | kept for display; **not** a separate FEE cashflow — already netted into `Amount` |
-| `Cash Balance = 12345.67` | dedup distinguisher (D2) | folded into the `cashflowId`/`tradeId` fingerprint (Fidelity) |
+| Raw field                                 | Kind                                | Normalized result                                                                                                     |
+| ----------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `Action = "YOU SOLD CLOSING TRANSACTION"` | **`classify`** (word-set)           | `side = "SELL"`; raw text kept in `rawAction`                                                                         |
+| `Symbol = -AMZN260320C230`                | **`extract`** (option parser, D10)  | `instrumentType = "Option"`; `optionDetails = {underlying: "AMZN", right: "CALL", strike: 230, expiry: "2026-03-20"}` |
+| `Run Date = 02/18/2026`                   | **`direct`** + date-normalize (D11) | `tradeDateTime`/`cashflowDate` → `2026-02-18` (month-first)                                                           |
+| `Quantity = -1`                           | **`direct`**                        | `quantity = 1`, side already SELL                                                                                     |
+| `Price = 6.30`                            | **`direct`**                        | `price = 6.30`                                                                                                        |
+| `Amount = 629.31`                         | **`direct`** (net, L7)              | Cashflow `amount = +629.31` (already net of commission+fees)                                                          |
+| `Commission = 0.65`, `Fees = 0.04`        | display metadata (L7)               | kept for display; **not** a separate FEE cashflow — already netted into `Amount`                                      |
+| `Cash Balance = 12345.67`                 | dedup distinguisher (D2)            | folded into the `cashflowId`/`tradeId` fingerprint (Fidelity)                                                         |
 
 _Fee check (L7): `6.30 × 100 − 0.65 − 0.04 = 629.31` — the file's `Amount` is already net of commission and fees, so recording it as the cash leg neither drops nor double-counts the charges._
 
@@ -2165,10 +2167,16 @@ _Fee check (L7): `6.30 × 100 − 0.65 − 0.04 = 629.31` — the file's `Amount
   "side": "SELL",
   "instrumentType": "Option",
   "quantity": 1,
-  "price": 6.30,
+  "price": 6.3,
   "currency": "USD",
   "tradeDateTime": "2026-02-18T00:00:00Z",
-  "optionDetails": { "underlying": "AMZN", "right": "CALL", "strike": 230, "expiry": "2026-03-20", "contractMultiplier": 100 },
+  "optionDetails": {
+    "underlying": "AMZN",
+    "right": "CALL",
+    "strike": 230,
+    "expiry": "2026-03-20",
+    "contractMultiplier": 100
+  },
   "GSI1PK": "USER#u_alex#BROKER#Fidelity",
   "GSI1SK": "TRADE#2026-02-18#t_amznopt01",
   "GSI3PK": "USER#u_alex#SYM#AMZN",
@@ -2224,7 +2232,7 @@ A quick gloss on the operations named below: **`GetItem`** fetches one item by i
 | **AP-8** Record a trade once (idempotent)                        | `PutItem` w/ `attribute_not_exists(PK)`                               | Base                                        | `PK = USER#<userId>`, `SK = TRADE#<date>#<tradeId>`                                                          | ADR-005, ADR-009, ADR-011 |
 | **AP-9** Record a cashflow once (idempotent)                     | `PutItem` w/ `attribute_not_exists(PK)`                               | Base                                        | `PK = USER#<userId>`, `SK = CASHFLOW#<currency>#<date>#<cashflowId>`                                         | ADR-005, ADR-007, ADR-011 |
 | **AP-10** Unified trade history, newest first                    | `Query` (ScanIndexForward=false)                                      | Base                                        | `PK = USER#<userId>`, `SK begins_with TRADE#`                                                                | ADR-003, ADR-009          |
-| **AP-11** Trades filtered to one broker                         | `Query`                                                               | **GSI1**                                    | `GSI1PK = USER#<userId>#BROKER#<broker>`, `GSI1SK begins_with TRADE#`                                       | ADR-001, ADR-002, ADR-009 |
+| **AP-11** Trades filtered to one broker                          | `Query`                                                               | **GSI1**                                    | `GSI1PK = USER#<userId>#BROKER#<broker>`, `GSI1SK begins_with TRADE#`                                        | ADR-001, ADR-002, ADR-009 |
 | **AP-12** Fetch a single trade                                   | `Query` / `GetItem`                                                   | Base                                        | `PK = USER#<userId>`, `SK begins_with TRADE#<date>#<tradeId>` (or exact `SK`)                                | ADR-009                   |
 | **AP-13** Cashflows for a currency, date order                   | `Query`                                                               | Base                                        | `PK = USER#<userId>`, `SK begins_with CASHFLOW#<currency>#`                                                  | ADR-007, ADR-009          |
 | **AP-14** Current holdings (symbols + quantities)                | **Derived** — `Query` trades, then net per symbol                     | Base (+ price-cache for valuation)          | `PK = USER#<userId>`, `SK begins_with TRADE#` → net buys/sells (§10.2); no Holdings item, no index           | ADR-001, ADR-010          |
@@ -2246,8 +2254,8 @@ A quick gloss on the operations named below: **`GetItem`** fetches one item by i
 | **AP-30** Trades filtered to one ticker                          | `Query`                                                               | **GSI3**                                    | `GSI3PK = USER#<userId>#SYM#<canonicalSymbol>`, `GSI3SK begins_with TRADE#`                                  | ADR-001, ADR-010          |
 | **AP-31** Get a ticker's historical price series (chart)         | `GetItem` (+ 1-day freshness check, §9.6)                             | **Price-cache**                             | `PK = PRICEHIST#<canonicalSymbol>#<currency>`                                                                | ADR-014, ADR-008          |
 | **AP-32** Store a fetched historical series (dated)              | `PutItem` (plain overwrite, sets `fetchedDate = today`, `expiresAt`)  | **Price-cache**                             | `PK = PRICEHIST#<canonicalSymbol>#<currency>`                                                                | ADR-014, ADR-008          |
-| **AP-33** Match a file to its BrokerMapper on upload             | `GetItem` (header-fingerprint match in app code)                     | Base (global partition)                     | `PK = GLOBAL#BROKERMAPPER`, `SK = MAPPER#<fileType>`                                                         | ADR-015, ADR-012          |
-| **AP-34** Admin: create / update / delete a BrokerMapper         | `PutItem` / `UpdateItem` / `DeleteItem`                              | Base (global partition)                     | `PK = GLOBAL#BROKERMAPPER`, `SK = MAPPER#<fileType>`                                                         | ADR-015, ADR-012          |
+| **AP-33** Match a file to its BrokerMapper on upload             | `GetItem` (header-fingerprint match in app code)                      | Base (global partition)                     | `PK = GLOBAL#BROKERMAPPER`, `SK = MAPPER#<fileType>`                                                         | ADR-015, ADR-012          |
+| **AP-34** Admin: create / update / delete a BrokerMapper         | `PutItem` / `UpdateItem` / `DeleteItem`                               | Base (global partition)                     | `PK = GLOBAL#BROKERMAPPER`, `SK = MAPPER#<fileType>`                                                         | ADR-015, ADR-012          |
 
 _Trade-chart markers need no row of their own — they reuse **AP-30** (GSI3), filtered in the app to the opened trade's currency/market (equity only). See §10.7 and ADR-014._
 
@@ -2433,10 +2441,10 @@ These are the deliberate simplifications the Phase 1 model leans on. None is an 
 | **A-4** | **Canonical symbol resolution is available when needed.** A `(broker, rawSymbol) → canonicalSymbol` mapping (the global SymbolMapping partition) is assumed resolvable at import, valuation, and evaluation time, so trades carry a stable `symbol` and the price cache is keyed by the canonical symbol. Unmapped symbols fall back to the raw symbol (treated as already-canonical).                                                                                                                                                                                                                | §7.4 (Trade), §9.2, §10.5, AP-26                          | ADR-010, ADR-012 |
 | **A-5** | **The price-cache freshness window is application config, not schema.** How long a cached price is considered "fresh" (the value used to compute `expiresAt`) is an app-level setting, not a property of the data model. The model only assumes such a window exists and is applied on write (AP-29) and re-checked on read (§9.4).                                                                                                                                                                                                                                                                   | §9.3, §9.4, §9.5, AP-28/29                                | ADR-008          |
 | **A-6** | **Identifier formats are illustrative placeholders.** Values like `u_alex`, `t_meta01`, `cf_div01` are examples, not a prescribed ID scheme. What the model requires is that trade/cashflow ids be **deterministic** functions of natural identity (for dedup); the exact string format is an implementation choice.                                                                                                                                                                                                                                                                                  | §1.6, §7.4, §10.1                                         | ADR-005          |
-| **A-7** | **An instrument's currency is known at import.** The price-cache key folds **currency** into the partition key (`PRICE#<canonicalSymbol>#<currency>`) to disambiguate the same ticker across the USD and INR markets. Every ingested trade already carries its account `currency`, so the key is always populatable — unlike exchange, which only Zerodha's files supply. Same-currency, different-exchange listings (NSE vs BSE, both INR) intentionally share one cache entry; see the §13 accepted limitation.                                                                                                                                                                                                                                                                                       | §9.2, AP-28/29                                            | ADR-008, ADR-010 |
+| **A-7** | **An instrument's currency is known at import.** The price-cache key folds **currency** into the partition key (`PRICE#<canonicalSymbol>#<currency>`) to disambiguate the same ticker across the USD and INR markets. Every ingested trade already carries its account `currency`, so the key is always populatable — unlike exchange, which only Zerodha's files supply. Same-currency, different-exchange listings (NSE vs BSE, both INR) intentionally share one cache entry; see the §13 accepted limitation.                                                                                     | §9.2, AP-28/29                                            | ADR-008, ADR-010 |
 | **A-8** | **Per-user isolation is sufficient privacy for Phase 1.** Rooting every user-owned item at `PK = USER#<userId>` is treated as the isolation boundary; finer-grained controls (encryption-at-rest of account numbers, audit logging, soft deletes) are out of Phase 1 scope.                                                                                                                                                                                                                                                                                                                           | §2.2, §6.2, §10.3                                         | ADR-002          |
 | **A-9** | **Authentication is via self-managed OAuth 2.0, verified upstream of every access pattern.** We run the OAuth/OIDC flow ourselves (Google Phase 1, Zerodha Phase 2 — no Cognito). Each request's provider token is verified against the provider's JWKS (Google) and its stable `sub` is mapped to our **internal `userId`** via the AuthIdentity item (§7.12) before any DynamoDB access; Beyond Folio then issues its **own session** (mechanism deferred — OQ-F). No passwords are stored; the `role` is app-managed on the `User` item; MFA is the provider's concern (out of scope for Phase 1). | §7.1 (User), §7.12 (AuthIdentity), §4.1 (AP-2b/2c), §12.1 | ADR-013, ADR-002 |
 
 > **Why write the assumptions down at all?** Because an unstated assumption is indistinguishable from a bug to the next reader. Listing them — each tied to where the model relies on it and the ADR that backs it — means a Phase 2 contributor can see exactly which simplifications are safe to revisit and which are load-bearing, without having to reverse-engineer the intent from the keys. _(See ADR-001.)_
-cks it — means a Phase 2 contributor can see exactly which simplifications are safe to revisit and which are load-bearing, without having to reverse-engineer the intent from the keys. _(See ADR-001.)_
-contributor can see exactly which simplifications are safe to revisit and which are load-bearing, without having to reverse-engineer the intent from the keys. _(See ADR-001.)_
+> cks it — means a Phase 2 contributor can see exactly which simplifications are safe to revisit and which are load-bearing, without having to reverse-engineer the intent from the keys. _(See ADR-001.)_
+> contributor can see exactly which simplifications are safe to revisit and which are load-bearing, without having to reverse-engineer the intent from the keys. _(See ADR-001.)_

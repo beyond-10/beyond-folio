@@ -1,0 +1,33 @@
+{
+  "name": "beyondfolio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @beyondfolio/web dev",
+    "build": "tsc --build tsconfig.build.json && pnpm --filter @beyondfolio/web build",
+    "typecheck": "tsc --build tsconfig.build.json && pnpm --filter @beyondfolio/web exec next build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "clean": "tsc --build tsconfig.build.json --clean"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.6.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.6.0",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.2",
+    "eslint": "^10.11.0",
+    "prettier": "^3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.1"
+  }
+}

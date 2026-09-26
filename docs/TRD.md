@@ -8,34 +8,34 @@
 
 ## 0. Document Control & Scope
 
-| Field             | Value                                                                                                                        |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Document          | Technical Requirements Document (TRD)                                                                                        |
-| Version           | 1.0 (all sections authored — draft for review)                                                                             |
-| Status            | Draft — all sections authored; for review                                                                                   |
-| Owner             | Engineering                                                                                                                 |
-| Reviewers         | Product, Engineering, QA                                                                                                    |
-| Last updated      | 2026-09-07                                                                                                                  |
-| Related documents | [`PRD.md`](./PRD.md), [`FEATURES.md`](./FEATURES.md), [`DYNAMODB_DATA_MODEL.md`](./DYNAMODB_DATA_MODEL.md), [`memory-bank/`](./memory-bank/) |
+| Field             | Value                                                                                                                                         |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Document          | Technical Requirements Document (TRD)                                                                                                         |
+| Version           | 1.0 (all sections authored — draft for review)                                                                                                |
+| Status            | Draft — all sections authored; for review                                                                                                     |
+| Owner             | Engineering                                                                                                                                   |
+| Reviewers         | Product, Engineering, QA                                                                                                                      |
+| Last updated      | 2026-09-07                                                                                                                                    |
+| Related documents | [`PRD.md`](./PRD.md), [`FEATURES.md`](./FEATURES.md), [`DYNAMODB_DATA_MODEL.md`](./DYNAMODB_DATA_MODEL.md), [`memory-bank/`](../memory-bank/) |
 
 **Changelog**
 
-| Version | Date       | Summary                                                                     |
-| ------- | ---------- | --------------------------------------------------------------------------- |
-| 0.1     | 2026-09-07 | Skeleton established; §2 Runtime & Import Execution authored (TRD Decision 1). |
-| 0.2     | 2026-09-07 | §3 Technology Stack authored (TRD Decision 2): TypeScript backend; ElectroDB + SDK v3 data access; single Next.js frontend. |
+| Version | Date       | Summary                                                                                                                                                                                                                                                                                        |
+| ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.1     | 2026-09-07 | Skeleton established; §2 Runtime & Import Execution authored (TRD Decision 1).                                                                                                                                                                                                                 |
+| 0.2     | 2026-09-07 | §3 Technology Stack authored (TRD Decision 2): TypeScript backend; ElectroDB + SDK v3 data access; single Next.js frontend.                                                                                                                                                                    |
 | 0.3     | 2026-09-07 | §4 API (tRPC; 3 API Lambdas + worker; procedure catalog; conventions) and §5 Authentication & Session (hybrid JWT + refresh; dedicated DynamoDB sessions table; openid-client + jose; tRPC auth middleware) authored (Decisions 3 & 4). Flags a 3rd DynamoDB table for ADR-003 reconciliation. |
-| 0.4     | 2026-09-07 | §6 External Integrations authored (Decision 5): market-data provider abstraction (provider count deferred); OQ-E resolved (selectable 1M/6M/1Y daily, cache 1Y & slice); last-completed-session rule; graceful degradation. |
-| 0.5     | 2026-09-07 | §7 Storage & Infrastructure authored (Decision 6): 3 DynamoDB tables (PITR on main only); single S3 bucket + temp/ prefix lifecycle; SQS+DLQ; secrets in SSM Parameter Store via getSecret(); no VPC. Client→API topology locked as Direct (for §1). |
-| 0.6     | 2026-09-07 | §8 Deployment, Environments & CI/CD authored (Decision 7): AWS CDK (TypeScript); Next.js via OpenNext+CDK; local+CI+prod only; GitHub Actions + OIDC fully automated CD to prod; version-controlled BrokerMapper seed + manual first-admin bootstrap. |
-| 0.7     | 2026-09-07 | §9 Non-Functional Requirements authored (Decision 8): CloudWatch + X-Ray observability; pre-signed S3 upload w/ 5 MB cap; never-log PII policy; balanced required test tiers; no numeric SLAs (not real-time). Consolidates security/error/backup from §4–§8. |
-| 0.8     | 2026-09-07 | §10 Open Questions & Phase-2 Seams authored. Import-flow + sessions-table reconciliations applied back into source docs (data model, PRD v1.4, FEATURES); §2.6 marked reconciled. |
-| 0.9     | 2026-09-07 | Auth refinement: added a 4th `auth-api` Lambda (sole token issuer + sole sessions-table access) and **asymmetric JWT keys** (private key in auth-api, public verify key elsewhere) across §4.2/§4.3/§5.4/§5.6/§5.7/§7.4/§8.1/§9.1. |
-| 1.0     | 2026-09-07 | §1 Architecture Overview authored (component diagram + request flows + trust boundaries). **All sections (§0–§10) now authored** — TRD structurally complete, draft for review. |
+| 0.4     | 2026-09-07 | §6 External Integrations authored (Decision 5): market-data provider abstraction (provider count deferred); OQ-E resolved (selectable 1M/6M/1Y daily, cache 1Y & slice); last-completed-session rule; graceful degradation.                                                                    |
+| 0.5     | 2026-09-07 | §7 Storage & Infrastructure authored (Decision 6): 3 DynamoDB tables (PITR on main only); single S3 bucket + temp/ prefix lifecycle; SQS+DLQ; secrets in SSM Parameter Store via getSecret(); no VPC. Client→API topology locked as Direct (for §1).                                           |
+| 0.6     | 2026-09-07 | §8 Deployment, Environments & CI/CD authored (Decision 7): AWS CDK (TypeScript); Next.js via OpenNext+CDK; local+CI+prod only; GitHub Actions + OIDC fully automated CD to prod; version-controlled BrokerMapper seed + manual first-admin bootstrap.                                          |
+| 0.7     | 2026-09-07 | §9 Non-Functional Requirements authored (Decision 8): CloudWatch + X-Ray observability; pre-signed S3 upload w/ 5 MB cap; never-log PII policy; balanced required test tiers; no numeric SLAs (not real-time). Consolidates security/error/backup from §4–§8.                                  |
+| 0.8     | 2026-09-07 | §10 Open Questions & Phase-2 Seams authored. Import-flow + sessions-table reconciliations applied back into source docs (data model, PRD v1.4, FEATURES); §2.6 marked reconciled.                                                                                                              |
+| 0.9     | 2026-09-07 | Auth refinement: added a 4th `auth-api` Lambda (sole token issuer + sole sessions-table access) and **asymmetric JWT keys** (private key in auth-api, public verify key elsewhere) across §4.2/§4.3/§5.4/§5.6/§5.7/§7.4/§8.1/§9.1.                                                             |
+| 1.0     | 2026-09-07 | §1 Architecture Overview authored (component diagram + request flows + trust boundaries). **All sections (§0–§10) now authored** — TRD structurally complete, draft for review.                                                                                                                |
 
 ### 0.1 Purpose
 
-The PRD says *what* Beyond Folio does and *why*; this TRD says *how* it is built. Its job is to remove ambiguity for engineers: every meaningful technical choice is recorded as a decision with its context, the options weighed, and the reasoning — the same **ADR (Architecture Decision Record)** discipline already used in the data model.
+The PRD says _what_ Beyond Folio does and _why_; this TRD says _how_ it is built. Its job is to remove ambiguity for engineers: every meaningful technical choice is recorded as a decision with its context, the options weighed, and the reasoning — the same **ADR (Architecture Decision Record)** discipline already used in the data model.
 
 ### 0.2 What this document builds on and must not relitigate
 
@@ -50,7 +50,7 @@ Where authoring the TRD surfaces a reason one of these should change, the change
 
 ### 0.3 Decisions the PRD explicitly defers to this TRD
 
-- **OQ-F — Session / token strategy.** The provider is decided (OAuth 2.0); the *session mechanism* (how a signed-in session is carried and ended) is settled here. See §5.
+- **OQ-F — Session / token strategy.** The provider is decided (OAuth 2.0); the _session mechanism_ (how a signed-in session is carried and ended) is settled here. See §5.
 - **OQ-E — Historical market-data provider/range.** The pattern is settled (lazy fetch + 1-day-fresh `PRICEHIST#` cache, ADR-014); the external provider and exact range/granularity are settled here. See §6.
 
 ### 0.4 How to read this document
@@ -64,8 +64,7 @@ Written for a **dual audience** — plain-terms explanation first (so any reader
 
 ---
 
-
-## 1. Architecture Overview  🟢 Authored
+## 1. Architecture Overview 🟢 Authored
 
 > Scope: the system's components and how they connect, the key request flows, and the trust boundaries between them. This section is a **synthesis** of the decisions detailed in §2–§10 — it introduces nothing new; where a component or choice is summarized here, its full rationale lives in the referenced section.
 
@@ -132,20 +131,20 @@ flowchart TB
     Adm -. getSecret .-> SSM
 ```
 
-> **Reading the diagram.** `app-api` reaching **Main + price-cache** covers the everyday reads plus XIRR/Evaluate valuation; **`auth-api` is the sole holder of the sessions table and the JWT private signing key** (the other Lambdas verify tokens with only the public key). The **Direct topology** is visible: the browser talks to API Gateway (tRPC + Bearer) and uploads straight to S3 (pre-signed PUT) — the Next.js hosting only *serves pages* and is never in the API path. The `import-worker` is reached only via SQS and touches Main + S3 (and market data during normalization); it holds no session or secret access.
+> **Reading the diagram.** `app-api` reaching **Main + price-cache** covers the everyday reads plus XIRR/Evaluate valuation; **`auth-api` is the sole holder of the sessions table and the JWT private signing key** (the other Lambdas verify tokens with only the public key). The **Direct topology** is visible: the browser talks to API Gateway (tRPC + Bearer) and uploads straight to S3 (pre-signed PUT) — the Next.js hosting only _serves pages_ and is never in the API path. The `import-worker` is reached only via SQS and touches Main + S3 (and market data during normalization); it holds no session or secret access.
 
-| Component | Responsibility | Defined in |
-| --- | --- | --- |
-| **Next.js app** | Single frontend — public (SEO/SSR) + private authenticated UI; calls the API directly | §3.3, §8.2 |
-| **API Gateway** | Entry point for all tRPC + HTTP API calls | §4 |
-| **`app-api` / `import-api` / `admin-api` / `auth-api`** | The four domain-grouped API Lambdas (TypeScript, tRPC) | §4.2 |
-| **`import-worker`** | Async SQS-triggered parse → normalize → write | §2, §4.2 |
-| **SQS + DLQ** | Durable import job queue + poison-message capture | §2.2, §7.3 |
-| **DynamoDB ×3** | `BeyondFolio` (main, PITR), price-cache (TTL), sessions (TTL) | §7.1 |
-| **S3** | Raw import files — `temp/` staging + permanent keep-forever | §7.2 |
-| **SSM Parameter Store** | Secrets + JWT private key (least-privilege per Lambda) | §7.4 |
-| **Google OAuth / JWKS** | Identity provider (sign-in) | §5 |
-| **Market-data provider(s)** | Current + historical prices, behind an abstraction | §6 |
+| Component                                               | Responsibility                                                                        | Defined in |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------- |
+| **Next.js app**                                         | Single frontend — public (SEO/SSR) + private authenticated UI; calls the API directly | §3.3, §8.2 |
+| **API Gateway**                                         | Entry point for all tRPC + HTTP API calls                                             | §4         |
+| **`app-api` / `import-api` / `admin-api` / `auth-api`** | The four domain-grouped API Lambdas (TypeScript, tRPC)                                | §4.2       |
+| **`import-worker`**                                     | Async SQS-triggered parse → normalize → write                                         | §2, §4.2   |
+| **SQS + DLQ**                                           | Durable import job queue + poison-message capture                                     | §2.2, §7.3 |
+| **DynamoDB ×3**                                         | `BeyondFolio` (main, PITR), price-cache (TTL), sessions (TTL)                         | §7.1       |
+| **S3**                                                  | Raw import files — `temp/` staging + permanent keep-forever                           | §7.2       |
+| **SSM Parameter Store**                                 | Secrets + JWT private key (least-privilege per Lambda)                                | §7.4       |
+| **Google OAuth / JWKS**                                 | Identity provider (sign-in)                                                           | §5         |
+| **Market-data provider(s)**                             | Current + historical prices, behind an abstraction                                    | §6         |
 
 ### 1.2 Key request flows
 
@@ -190,7 +189,7 @@ sequenceDiagram
 ### 1.3 Trust & security boundaries
 
 - **The browser is untrusted.** All access is mediated by API Gateway and the tRPC **verify-middleware**, which derives the `userId` from the **verified token — never from client input** (§5.7). Per-user data isolation is then structural via `USER#<userId>` key rooting (ADR-002).
-- **`auth-api` is the security keystone.** It is the **only** Lambda that can mint tokens (holds the JWT private signing key) and the **only** one with access to the sessions table; every other Lambda can merely *verify* tokens with the public key (§4.2, §5.4, §5.6).
+- **`auth-api` is the security keystone.** It is the **only** Lambda that can mint tokens (holds the JWT private signing key) and the **only** one with access to the sessions table; every other Lambda can merely _verify_ tokens with the public key (§4.2, §5.4, §5.6).
 - **Least-privilege IAM per Lambda** (§7.4): each function reaches only the stores/secrets it needs.
 - **Backend-only data stores.** The browser reaches only two things directly — the API (tRPC + Bearer) and pre-signed S3 PUTs into `temp/`; it never touches DynamoDB or the permanent S3 keys.
 - **TLS everywhere; no VPC** — security is identity-based (IAM + TLS), not network-placement-based (§7.5).
@@ -206,23 +205,21 @@ A few principles recur across the design (each detailed in its section):
 
 > This overview synthesizes the decisions detailed in §2–§10; consult those sections for the reasoning, alternatives weighed, and implementation specifics behind each component summarized here.
 
-
-
 ---
 
-## 2. Runtime & Import Execution  🟢 Authored
+## 2. Runtime & Import Execution 🟢 Authored
 
 > Scope: where our code runs (the compute/runtime shape) and how the file-import workload executes on it (synchronous vs. asynchronous, and the concrete import pipeline). This is the keystone decision — it constrains the technology stack, the session mechanism, and the deployment tooling that follow.
 
 ### 2.1 Runtime shape — serverless (AWS Lambda + API Gateway)
 
-**In plain terms.** Every user request has to be received and handled by *something*. There were two families of answer: an **always-on server** that runs 24/7 waiting for requests, or **on-demand functions** ("serverless") that spin up when a request arrives, handle it, and disappear. Beyond Folio uses the **serverless** model — AWS Lambda functions behind an API Gateway.
+**In plain terms.** Every user request has to be received and handled by _something_. There were two families of answer: an **always-on server** that runs 24/7 waiting for requests, or **on-demand functions** ("serverless") that spin up when a request arrives, handle it, and disappear. Beyond Folio uses the **serverless** model — AWS Lambda functions behind an API Gateway.
 
 **Decision.** Run the backend as **serverless functions (AWS Lambda) behind API Gateway.**
 
 **Why.**
 
-- **The load profile fits it exactly.** Phase-1 usage is small, bursty, and idle most of the day (tens of users; imports "possible but rare" per the scale envelope). Serverless *scales to zero* — an idle app costs almost nothing — which is the opposite of an always-on server that bills around the clock whether used or not.
+- **The load profile fits it exactly.** Phase-1 usage is small, bursty, and idle most of the day (tens of users; imports "possible but rare" per the scale envelope). Serverless _scales to zero_ — an idle app costs almost nothing — which is the opposite of an always-on server that bills around the clock whether used or not.
 - **It matches what we've already committed to.** The data layer (DynamoDB **on-demand**) and file storage (**S3**) are both pay-per-use, AWS-native, serverless-style services. A serverless compute tier completes that picture consistently.
 - **Latency needs are relaxed.** Beyond Folio is not a real-time trading system; the brief "cold start" delay a serverless function can incur on the first request after idle is a non-issue here.
 
@@ -231,13 +228,13 @@ A few principles recur across the design (each detailed in its section):
 - **Always-on container/server (e.g. ECS/Fargate, App Runner).** Simplest mental model (a plain web server) and it removes per-request time limits — attractive, but it pays for capacity 24/7 to run an app that is idle most of the time, and it pulls against the serverless grain of the rest of the stack. Rejected for Phase 1 on cost-fit and consistency grounds.
 - **Hybrid (functions for the API, a separate always-on worker).** More moving parts than the scale justifies. Rejected as premature.
 
-**Reversibility (important).** Choosing serverless now does **not** lock us in. A future move to an always-on server is a **contained change (~4/10 on effort)**, *provided* one discipline is honored from day one: keep the **business logic invocation-agnostic** — plain functions that take inputs and return outputs, that do not reach into the HTTP request/response object or assume "I must finish within this response." The API handler and any worker are then thin wrappers around that logic, and switching runtimes rewrites only those wrappers, not the valuable core. Starting serverless also keeps the *cheaper* migration direction ahead of us (consolidating stateless functions into one server is easier than the reverse). This is adopted as a standing TRD principle (see §2.5).
+**Reversibility (important).** Choosing serverless now does **not** lock us in. A future move to an always-on server is a **contained change (~4/10 on effort)**, _provided_ one discipline is honored from day one: keep the **business logic invocation-agnostic** — plain functions that take inputs and return outputs, that do not reach into the HTTP request/response object or assume "I must finish within this response." The API handler and any worker are then thin wrappers around that logic, and switching runtimes rewrites only those wrappers, not the valuable core. Starting serverless also keeps the _cheaper_ migration direction ahead of us (consolidating stateless functions into one server is easier than the reverse). This is adopted as a standing TRD principle (see §2.5).
 
 **Consequence for sessions.** A serverless function keeps **no memory between requests** — each invocation may be a fresh worker that has never seen the user. So "staying signed in" cannot live in server memory; it must be carried in the request (a signed token) or read from a shared store. This directly shapes the session decision (OQ-F, §5) and is noted there.
 
 ### 2.2 Import execution — asynchronous background job (SQS + dead-letter queue)
 
-**In plain terms.** When a user imports a broker file, the heavy work (parsing, de-duplicating, normalizing, and writing hundreds-to-thousands of rows) can take several seconds. The question is whether the user's request *waits* for all of it (**synchronous**) or whether the request returns immediately and the work runs **in the background** (**asynchronous**). Beyond Folio runs the heavy import work **asynchronously**, driven by a message queue (**Amazon SQS**) with a **dead-letter queue (DLQ)** for failures.
+**In plain terms.** When a user imports a broker file, the heavy work (parsing, de-duplicating, normalizing, and writing hundreds-to-thousands of rows) can take several seconds. The question is whether the user's request _waits_ for all of it (**synchronous**) or whether the request returns immediately and the work runs **in the background** (**asynchronous**). Beyond Folio runs the heavy import work **asynchronously**, driven by a message queue (**Amazon SQS**) with a **dead-letter queue (DLQ)** for failures.
 
 **Decision.** The heavy phases of an import run as **asynchronous background jobs**, triggered via **SQS**, processed by a worker Lambda, with a **DLQ** for terminal failures.
 
@@ -250,10 +247,9 @@ A few principles recur across the design (each detailed in its section):
 
 So the choice converges on **SQS + DLQ** as the primary trigger: explicit, conventional, with well-documented retry and dead-letter semantics.
 
-
 ### 2.3 The import pipeline (two-gate, async-normalize)
 
-**In plain terms.** An import has two heavy phases separated by a **human decision**: first we read and interpret the file (so we can show the user exactly what we understood), then — only after the user confirms — we write it to the database. The user therefore clicks **twice**: once to *start* processing, and once to *confirm* the interpreted result before anything is saved. This gives the user a genuine checkpoint on the normalized rows before they touch durable storage.
+**In plain terms.** An import has two heavy phases separated by a **human decision**: first we read and interpret the file (so we can show the user exactly what we understood), then — only after the user confirms — we write it to the database. The user therefore clicks **twice**: once to _start_ processing, and once to _confirm_ the interpreted result before anything is saved. This gives the user a genuine checkpoint on the normalized rows before they touch durable storage.
 
 The full flow:
 
@@ -290,18 +286,17 @@ The full flow:
 
 **Why this order.** The cheap work (upload, file-hash dedup, broker detection) runs **synchronously** before Gate 1 — it is fast and the user is actively waiting. The expensive work (full normalization; the many database writes) runs **asynchronously**, split around the confirm gate. This keeps the request path fast, decouples the heavy work from the user's connection, and preserves the locked optimization of **fully normalizing only genuinely-new rows** (Layer-2 runs before normalization).
 
-**The preview shows the interpreted result, not a raw sample.** Rather than a sample of raw input rows (which only shows the user what they already gave us), the preview shows (a) the **counts** — imported / duplicate-skipped / unsupported-skipped — and (b) the **normalized imported rows** (exactly what Beyond Folio understood) plus (c) the **skipped/unsupported rows** (so the user sees precisely what will *not* be imported). This is the information the user actually needs to make the confirm decision.
+**The preview shows the interpreted result, not a raw sample.** Rather than a sample of raw input rows (which only shows the user what they already gave us), the preview shows (a) the **counts** — imported / duplicate-skipped / unsupported-skipped — and (b) the **normalized imported rows** (exactly what Beyond Folio understood) plus (c) the **skipped/unsupported rows** (so the user sees precisely what will _not_ be imported). This is the information the user actually needs to make the confirm decision.
 
 ### 2.4 Reliability model — idempotent dedup is the load-bearing piece
 
-**The order of dependence matters.** The safety of retrying an import comes **first** from the data model's **idempotent, deterministic writes** (ADR-005: deterministic `tradeId`/`cashflowId` + `attribute_not_exists`), and only *then* from the queue. Restated: **idempotent writes make any retry safe; the queue merely supplies the retry.** A retry mechanism on top of non-idempotent writes would simply corrupt data more efficiently — so the dedup is the foundation, and SQS is the transport.
+**The order of dependence matters.** The safety of retrying an import comes **first** from the data model's **idempotent, deterministic writes** (ADR-005: deterministic `tradeId`/`cashflowId` + `attribute_not_exists`), and only _then_ from the queue. Restated: **idempotent writes make any retry safe; the queue merely supplies the retry.** A retry mechanism on top of non-idempotent writes would simply corrupt data more efficiently — so the dedup is the foundation, and SQS is the transport.
 
 Given that foundation:
 
 - **Transient failure / crash mid-job:** SQS redelivers the message after the visibility timeout; the worker re-runs, the already-written rows are skipped by `attribute_not_exists`, and the job completes. Self-healing, no user action.
 - **Poison job (fails every time):** a bounded `maxReceiveCount` sends the message to the **DLQ** after N attempts; the worker marks `ImportedFile.status = FAILED`. No invisible stuck jobs; the bad message is captured for inspection without blocking others.
 - **Parking cleanup:** the temp raw file and the parked normalized batch are lifecycle-expired if an import is abandoned, and deleted on successful completion — so orphaned artifacts cannot accumulate.
-
 
 ### 2.5 The `ImportedFile` status spine, and the invocation-agnostic principle
 
@@ -312,7 +307,7 @@ UPLOADED → PROCESSING → PREVIEW_READY → COMMITTING → COMPLETE
                                    ↘ FAILED   ↘ CANCELLED
 ```
 
-The UI **polls** this record to drive its display and the "ready for confirmation" notification. The record is **created once at upload** (its creation *is* the Layer-1 `attribute_not_exists` dedup gate) and **updated** through its lifecycle — the confirm-time write becomes an *update* that attaches the `s3Key`, not a second create.
+The UI **polls** this record to drive its display and the "ready for confirmation" notification. The record is **created once at upload** (its creation _is_ the Layer-1 `attribute_not_exists` dedup gate) and **updated** through its lifecycle — the confirm-time write becomes an _update_ that attaches the `s3Key`, not a second create.
 
 **Invocation-agnostic import pipeline (standing principle).** The import logic is written as a **standalone, invocation-agnostic function** — plain inputs → work → update `ImportedFile` status — with the API handler and the SQS worker as **thin wrappers**. This keeps the trigger mechanism swappable (SQS today, something else later) and preserves the cheap serverless→server migration path from §2.1.
 
@@ -327,21 +322,20 @@ This decision refined several **locked** import decisions; the following changes
 - **data model §10.8 / §7.3:** the `ImportedFile` write is **create-once-at-upload + update-through-lifecycle** (a `status` attribute was added). ✅
 - **PRD / FEATURES:** the **import-status UX** (async: "processing → ready for confirmation → complete") is reflected in PRD FR-I4 (v1.4) and FEATURES §5.1. ✅
 
-
 ---
 
-## 3. Technology Stack  🟢 Authored
+## 3. Technology Stack 🟢 Authored
 
 > Scope: the backend language, the DynamoDB data-access layer, and the frontend framework — the languages and libraries we build in, chosen to fit the serverless runtime locked in §2. Each sub-decision is presented as options-with-tradeoffs, then a decision.
 
 **Summary of the stack.**
 
-| Layer | Choice |
-| --- | --- |
-| Backend language | **TypeScript** (Node.js on AWS Lambda) |
-| Data-access — main table | **ElectroDB** (single-table toolkit) over AWS SDK v3 |
-| Data-access — price-cache table | **Raw AWS SDK v3** (DocumentClient) |
-| Frontend | **A single Next.js app** (public + private pages), TypeScript |
+| Layer                           | Choice                                                        |
+| ------------------------------- | ------------------------------------------------------------- |
+| Backend language                | **TypeScript** (Node.js on AWS Lambda)                        |
+| Data-access — main table        | **ElectroDB** (single-table toolkit) over AWS SDK v3          |
+| Data-access — price-cache table | **Raw AWS SDK v3** (DocumentClient)                           |
+| Frontend                        | **A single Next.js app** (public + private pages), TypeScript |
 
 ### 3.1 Backend language — TypeScript (Node.js on Lambda)
 
@@ -351,22 +345,22 @@ This decision refined several **locked** import decisions; the following changes
 
 **Why.**
 
-- **Stack unification.** With the frontend already TypeScript, an all-TypeScript backend means **one language, one toolchain, and shared types**: the API's request/response shapes can be the *same* types the frontend consumes, so client and server can't silently drift apart.
+- **Stack unification.** With the frontend already TypeScript, an all-TypeScript backend means **one language, one toolchain, and shared types**: the API's request/response shapes can be the _same_ types the frontend consumes, so client and server can't silently drift apart.
 - **Best-in-class DynamoDB tooling.** The strongest single-table DynamoDB libraries (see §3.2) are TypeScript-native and map directly onto our data model's overloaded-key + GSI + `entityType` design.
 - **Types across the import pipeline.** Modeling the four `columnMapping` kinds, the 10-value `cashflowType` (D4), and the Trade/Cashflow shapes as types turns a class of normalization bugs into compile-time errors.
 - **Runtime fit.** Node cold starts are on the favorable side, the modular AWS SDK v3 keeps deployment packages small, and async I/O suits the many-parallel-DynamoDB-writes + external market-data calls of our workload. Mature libraries exist for OAuth/JWKS (`jose`, `openid-client`), CSV (`csv-parse`), and XLSX (`exceljs`/SheetJS).
 
 **Alternatives considered.**
 
-- **Python.** Superb for data wrangling (pandas) and numerical work (numpy/scipy, or the dedicated `pyxirr`), which are genuinely relevant to parsing and XIRR. Rejected as the *primary* language because: it shares no language with the TS frontend (no shared types), its single-table DynamoDB tooling is weaker, and its data libraries make cold starts heavier — precisely because the libraries that make Python attractive (pandas/numpy) are large, partly-native packages.
+- **Python.** Superb for data wrangling (pandas) and numerical work (numpy/scipy, or the dedicated `pyxirr`), which are genuinely relevant to parsing and XIRR. Rejected as the _primary_ language because: it shares no language with the TS frontend (no shared types), its single-table DynamoDB tooling is weaker, and its data libraries make cold starts heavier — precisely because the libraries that make Python attractive (pandas/numpy) are large, partly-native packages.
 - **Go.** Fastest cold starts and lowest memory, but slower to develop, a thinner ecosystem for XLSX and single-table DynamoDB, and no frontend language sharing — overkill for a tens-of-users app where developer velocity matters more than runtime speed.
 
-**Deferred Python escape-hatch (held, not adopted).** Serverless makes each Lambda an independently deployable unit, so a *single* feature could be written in Python without making the whole backend polyglot. If — and only if — a specific feature proves genuinely hard to do well in TypeScript (realistically **XIRR**, via `pyxirr`, or **heavy CSV/XLSX parsing/normalization**, via pandas), that one feature may be isolated in a dedicated Python Lambda with a small, schema-validated input/output contract. This is an explicitly-held option to revisit **only if** the TypeScript implementation is inadequate; we do **not** pay the polyglot cost up front, because:
+**Deferred Python escape-hatch (held, not adopted).** Serverless makes each Lambda an independently deployable unit, so a _single_ feature could be written in Python without making the whole backend polyglot. If — and only if — a specific feature proves genuinely hard to do well in TypeScript (realistically **XIRR**, via `pyxirr`, or **heavy CSV/XLSX parsing/normalization**, via pandas), that one feature may be isolated in a dedicated Python Lambda with a small, schema-validated input/output contract. This is an explicitly-held option to revisit **only if** the TypeScript implementation is inadequate; we do **not** pay the polyglot cost up front, because:
 
 - **Two toolchains, forever** — two package managers, lint/format/test setups, runtime-upgrade cadences, and CI paths, maintained in parallel.
 - **The type boundary breaks at the seam** — a TS→Python handoff (e.g. an SQS message) loses compile-time type safety; the contract must be defined and validated by hand on both sides.
 - **Domain models must be defined twice** — e.g. the 10-value `cashflowType` would live in both a TypeScript type and a Python definition, kept in sync by discipline rather than the compiler.
-- **The wins are narrow and reproducible in TS** — XIRR is a compact root-finding routine (~50 lines or a small npm package), and CSV/XLSX parsing in TS is fully capable; pandas is *nicer*, not *necessary*, at our volumes.
+- **The wins are narrow and reproducible in TS** — XIRR is a compact root-finding routine (~50 lines or a small npm package), and CSV/XLSX parsing in TS is fully capable; pandas is _nicer_, not _necessary_, at our volumes.
 
 ### 3.2 Data-access layer — ElectroDB (main table) + AWS SDK v3 (price-cache table)
 
@@ -383,10 +377,10 @@ This "**library where it earns its place, raw SDK where it doesn't**" split mirr
 
 **Alternatives considered.**
 
-- **Raw AWS SDK v3 everywhere (no ElectroDB).** Zero third-party data dependency and full control — a defensible minimalist choice — but it pushes all the key-construction/parsing and GSI-routing for the *complex* main table into hand-written code, which is the error surface ElectroDB removes. Rejected for the main table on maintainability grounds; adopted for the simple price-cache table.
+- **Raw AWS SDK v3 everywhere (no ElectroDB).** Zero third-party data dependency and full control — a defensible minimalist choice — but it pushes all the key-construction/parsing and GSI-routing for the _complex_ main table into hand-written code, which is the error surface ElectroDB removes. Rejected for the main table on maintainability grounds; adopted for the simple price-cache table.
 - **Other toolkits (OneTable, Dynamoose).** OneTable is a close alternative; Dynamoose is more ORM-like and less single-table-idiomatic. ElectroDB was chosen as the most single-table-focused and widely used of the TS options; this is not a load-bearing choice and could be revisited without affecting the data model.
 
-> **Note.** ElectroDB is a data-access convenience, not a schema authority — the authoritative data model remains `DYNAMODB_DATA_MODEL.md`. ElectroDB entity definitions must *encode* that model, never redefine it.
+> **Note.** ElectroDB is a data-access convenience, not a schema authority — the authoritative data model remains `DYNAMODB_DATA_MODEL.md`. ElectroDB entity definitions must _encode_ that model, never redefine it.
 
 ### 3.3 Frontend — a single Next.js app (public + private)
 
@@ -397,23 +391,21 @@ This "**library where it earns its place, raw SDK where it doesn't**" split mirr
 **Why.**
 
 - **Public pages are in the plan from the start**, and public pages need **SEO** — search engines must be able to read the page's content. A plain browser-rendered single-page app (SPA) serves a near-empty initial page to crawlers and indexes poorly; **Next.js renders real HTML on the server** (SSR/SSG), which indexes and link-previews well. SEO is **hard to retrofit** onto an SPA later, so choosing an SEO-capable framework up front avoids a painful migration.
-- **Next.js is a superset of what an SPA does.** It serves the private, authenticated app pages just as well as an SPA *and* handles the public/SEO pages an SPA cannot — in one framework, one toolchain, one shared design system, and shared types with the backend.
+- **Next.js is a superset of what an SPA does.** It serves the private, authenticated app pages just as well as an SPA _and_ handles the public/SEO pages an SPA cannot — in one framework, one toolchain, one shared design system, and shared types with the backend.
 - **Still 100% TypeScript**, honoring §3.1 and preserving shared types with the backend API.
 
 **Alternatives considered.**
 
-- **React + Vite SPA (static files on S3 + CloudFront).** Simplest and cheapest to host (pure static assets, no rendering server) and perfectly good for *private* pages — but it renders in the browser, so it is **poor for the public/SEO pages** we plan from the start. Rejected because its one advantage (hosting simplicity) is minor at our scale, while its weakness (SEO) is exactly what our roadmap needs.
-- **Two-app split (React+Vite SPA for the app + a separate Next.js site for public pages, linked by a login redirect).** Feasible and a real pattern, but it re-creates *two* apps to do what one Next.js app does: it duplicates the shared UI/design system (or forces a third shared-component package), runs **two toolchains and two deployments**, and makes the public→app transition a hard cross-origin redirect. Rejected because it pays ongoing duplication costs to achieve the same outcome a single Next.js app gives with less effort — and because, once Next.js serves the private pages equally well, there is no remaining reason to also run a separate SPA.
+- **React + Vite SPA (static files on S3 + CloudFront).** Simplest and cheapest to host (pure static assets, no rendering server) and perfectly good for _private_ pages — but it renders in the browser, so it is **poor for the public/SEO pages** we plan from the start. Rejected because its one advantage (hosting simplicity) is minor at our scale, while its weakness (SEO) is exactly what our roadmap needs.
+- **Two-app split (React+Vite SPA for the app + a separate Next.js site for public pages, linked by a login redirect).** Feasible and a real pattern, but it re-creates _two_ apps to do what one Next.js app does: it duplicates the shared UI/design system (or forces a third shared-component package), runs **two toolchains and two deployments**, and makes the public→app transition a hard cross-origin redirect. Rejected because it pays ongoing duplication costs to achieve the same outcome a single Next.js app gives with less effort — and because, once Next.js serves the private pages equally well, there is no remaining reason to also run a separate SPA.
 
 **Honest caveat (hosting).** Unlike a pure static SPA, Next.js needs a **rendering host** — e.g. **AWS Amplify Hosting** or Next-on-Lambda — which is marginally more infrastructure than serving static files from S3. At our scale (tens of users) this is a minor operational and cost detail, not a burden. The concrete hosting choice is settled in §8 (Deployment).
 
 **Cross-reference.** This TypeScript/Next.js frontend interacts with the API-style decision in §4: a fully type-safe client↔server option (tRPC) pairs naturally with this stack. That tradeoff is weighed when §4 is authored.
 
-
-
 ---
 
-## 4. API Design & Contracts  🟢 Authored
+## 4. API Design & Contracts 🟢 Authored
 
 > Scope: the API style, how it is packaged onto Lambda, the concrete operation surface mapped to the FR-* requirements and AP-1…AP-34, and the cross-cutting conventions (pagination, errors, validation, import-status). Authentication enforcement is a shared concern with §5 and is defined there (§5.6), referenced from here.
 
@@ -432,7 +424,7 @@ This "**library where it earns its place, raw SDK where it doesn't**" split mirr
 
 **Alternatives considered.**
 
-- **REST.** Universally understood, portable, and the right choice *if* a public/third-party or non-TypeScript API were ever needed — but that need is explicitly excluded, so REST's headline advantages (portability, external-consumer readiness, natural CDN caching of public responses) are unused for our private, per-user data. Its cost for us (manual client/server type-safety upkeep, awkward modeling of command actions) is real. Rejected on fit.
+- **REST.** Universally understood, portable, and the right choice _if_ a public/third-party or non-TypeScript API were ever needed — but that need is explicitly excluded, so REST's headline advantages (portability, external-consumer readiness, natural CDN caching of public responses) are unused for our private, per-user data. Its cost for us (manual client/server type-safety upkeep, awkward modeling of command actions) is real. Rejected on fit.
 - **GraphQL.** Valuable when many diverse clients need flexible field selection; overkill for a single, known client with a bounded operation set. Rejected as unnecessary complexity.
 
 ### 4.2 Deployment shape — four domain-grouped API Lambdas + one async worker
@@ -441,13 +433,13 @@ This "**library where it earns its place, raw SDK where it doesn't**" split mirr
 
 **Decision.**
 
-| Lambda | Trigger | Contains |
-| --- | --- | --- |
-| **`app-api`** | API Gateway | Everyday user operations: `account`, `trades`, `journal`, `tags`, `evaluation`, `xirr` (+ internal symbol/price use) |
-| **`import-api`** | API Gateway | Import's *synchronous* calls: file upload (HTTP), `proceed`, `getStatus`, `getPreview`, `confirm` |
-| **`admin-api`** | API Gateway | Admin-only: BrokerMapper + SymbolMapping management |
-| **`auth-api`** | API Gateway | Sign-in, OAuth callback, token refresh, logout — the **only** Lambda that issues (signs) tokens and the **only** one with IAM access to the sessions table (§5.4) |
-| **`import-worker`** | SQS | Async heavy import work: parse → normalize → write (from §2) |
+| Lambda              | Trigger     | Contains                                                                                                                                                          |
+| ------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`app-api`**       | API Gateway | Everyday user operations: `account`, `trades`, `journal`, `tags`, `evaluation`, `xirr` (+ internal symbol/price use)                                              |
+| **`import-api`**    | API Gateway | Import's _synchronous_ calls: file upload (HTTP), `proceed`, `getStatus`, `getPreview`, `confirm`                                                                 |
+| **`admin-api`**     | API Gateway | Admin-only: BrokerMapper + SymbolMapping management                                                                                                               |
+| **`auth-api`**      | API Gateway | Sign-in, OAuth callback, token refresh, logout — the **only** Lambda that issues (signs) tokens and the **only** one with IAM access to the sessions table (§5.4) |
+| **`import-worker`** | SQS         | Async heavy import work: parse → normalize → write (from §2)                                                                                                      |
 
 **Why.**
 
@@ -456,7 +448,6 @@ This "**library where it earns its place, raw SDK where it doesn't**" split mirr
 - **Credential isolation for the auth path.** `auth-api` is the sole holder of the JWT **private signing key** and the sole Lambda with **sessions-table** access, so no other function can mint tokens or reach refresh-token credentials — the IAM-enforced realization of the least-privilege intent behind the dedicated sessions table (§5.4). Auth is at least as deserving of this isolation as admin, since it handles session credentials.
 - **Consolidation for the common path.** The many similar everyday read/write operations share `app-api`, which keeps that function warmer (fewer cold starts on the common path) and simpler to operate.
 - **The async worker is separate by necessity** — it is triggered by SQS, not API Gateway, and runs decoupled from any user request (§2).
-
 
 **Notes.**
 
@@ -470,29 +461,29 @@ This "**library where it earns its place, raw SDK where it doesn't**" split mirr
 
 **`app-api`**
 
-| Router | Procedures | Serves |
-| --- | --- | --- |
-| `account` | `get`, `update`, `listBrokerAccounts` | AP-1, AP-2, AP-3 |
-| `trades` | `list` (paginated), `listByBroker`, `listByTicker`, `getChartSeries` | AP-10, AP-11, AP-30, AP-31 |
-| `journal` | `listForTrade`, `create`, `get`, `attachTags`, `listByTag` | AP-15, AP-16, AP-17, AP-20, AP-21 |
-| `tags` | `list`, `create` | AP-18, AP-19 |
-| `evaluation` | `evaluate`, `getScorecard`, `listRanked` | AP-22 (→AP-23), AP-24, AP-25 |
-| `xirr` | `get` | per-currency XIRR (assembles AP-13/AP-14) |
+| Router       | Procedures                                                           | Serves                                    |
+| ------------ | -------------------------------------------------------------------- | ----------------------------------------- |
+| `account`    | `get`, `update`, `listBrokerAccounts`                                | AP-1, AP-2, AP-3                          |
+| `trades`     | `list` (paginated), `listByBroker`, `listByTicker`, `getChartSeries` | AP-10, AP-11, AP-30, AP-31                |
+| `journal`    | `listForTrade`, `create`, `get`, `attachTags`, `listByTag`           | AP-15, AP-16, AP-17, AP-20, AP-21         |
+| `tags`       | `list`, `create`                                                     | AP-18, AP-19                              |
+| `evaluation` | `evaluate`, `getScorecard`, `listRanked`                             | AP-22 (→AP-23), AP-24, AP-25              |
+| `xirr`       | `get`                                                                | per-currency XIRR (assembles AP-13/AP-14) |
 
 **`import-api`**
 
-| Router | Procedures | Serves |
-| --- | --- | --- |
-| `import` | `upload` *(plain HTTP — file bytes)*, `proceed` (Gate 1 → enqueue), `getStatus`, `getPreview`, `confirm` (Gate 2 → enqueue) | AP-5, AP-6, AP-33 + the two-gate flow (§2.3) |
+| Router   | Procedures                                                                                                                  | Serves                                       |
+| -------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `import` | `upload` _(plain HTTP — file bytes)_, `proceed` (Gate 1 → enqueue), `getStatus`, `getPreview`, `confirm` (Gate 2 → enqueue) | AP-5, AP-6, AP-33 + the two-gate flow (§2.3) |
 
 **`admin-api`**
 
-| Router | Procedures | Serves |
-| --- | --- | --- |
-| `admin.mappers` | `list`, `upsert`, `delete` | AP-34 |
-| `admin.symbols` | `upsert` | AP-27 |
+| Router          | Procedures                 | Serves |
+| --------------- | -------------------------- | ------ |
+| `admin.mappers` | `list`, `upsert`, `delete` | AP-34  |
+| `admin.symbols` | `upsert`                   | AP-27  |
 
-**Deliberately *not* client-facing procedures (internal server-side only):**
+**Deliberately _not_ client-facing procedures (internal server-side only):**
 
 - **Current price is embedded, not fetched separately.** There is no standalone `prices.get`. The current price is returned as a field on the two responses that already need it — `evaluation.evaluate` (the price used to decide Win/Loss/Breakeven) and `trades.getChartSeries` (the latest point on the chart). This avoids an extra round-trip and guarantees the displayed price is the exact price the backend computed against.
 - **Symbol resolution (`resolveSymbol`, AP-26)** is an internal step invoked during import normalization and valuation (raw → canonical symbol via the global SymbolMapping). Only the **admin** editing of mappings (AP-27) is a callable procedure.
@@ -512,11 +503,9 @@ Rules applied across every procedure so the API behaves predictably.
 
 Every non-public procedure is gated by the tRPC auth middleware and the `publicProcedure` / `protectedProcedure` / `adminProcedure` types. Because this is inseparable from the session mechanism, it is defined once in **§5.6** and applies here in full.
 
-
-
 ---
 
-## 5. Authentication & Session  🟢 Authored
+## 5. Authentication & Session 🟢 Authored
 
 > Scope: the sign-in flow and, above all, the **session mechanism (OQ-F)** the PRD deferred here — how a signed-in session is carried and ended. Builds on ADR-013 (self-managed OAuth 2.0), which is not reopened. Also settles the OAuth library, browser token storage, and the tRPC enforcement layer (which §4.5 references).
 
@@ -529,7 +518,7 @@ The data model already decided the identity foundation; this section builds on i
 - **`sub` → internal `userId`** via the **AuthIdentity** lookup item (data model §7.12); on first sign-in we **provision** the User + AuthIdentity idempotently (first-login provisioning).
 - **Roles** (`user` / `admin`) are **app-managed** on the User item.
 
-What this section adds is everything *after* Google vouches for the user: how **we** issue and manage our own session.
+What this section adds is everything _after_ Google vouches for the user: how **we** issue and manage our own session.
 
 ### 5.2 Session mechanism (OQ-F) — a hybrid of a signed access token + a stored refresh token
 
@@ -545,7 +534,7 @@ What this section adds is everything *after* Google vouches for the user: how **
 **Alternatives considered.**
 
 - **Pure stateless JWT (no store).** Simplest and fastest, but "logout" is soft — an issued token stays valid until it expires, with no way to kill it early. Rejected because it does not satisfy secure logout.
-- **Pure server-side sessions (opaque token + a store lookup on every request).** Trivial revocation and a simple mental model, but it adds a store read to *every* request. Reasonable at our scale, but the hybrid gives the same revocation control while keeping the common request path lookup-free. Rejected in favor of the hybrid.
+- **Pure server-side sessions (opaque token + a store lookup on every request).** Trivial revocation and a simple mental model, but it adds a store read to _every_ request. Reasonable at our scale, but the hybrid gives the same revocation control while keeping the common request path lookup-free. Rejected in favor of the hybrid.
 
 ### 5.3 Token lifecycle — refresh, logout, revocation
 
@@ -570,9 +559,9 @@ This is the standard OAuth access/refresh pattern; nothing here is hand-rolled c
 **Why a separate table (and not the main table).**
 
 - **Least privilege / blast radius.** If sessions lived in the main `BeyondFolio` table, every Lambda that reads that table would have IAM access to session credentials. A separate table lets us scope access to only the auth code — sensitive credential material is isolated.
-- **Ephemeral + TTL fit.** Sessions are short-lived and TTL-driven, unlike the durable main-table data. This is the *same reasoning* ADR-003 used to split the ephemeral price cache into its own table — so a separate, TTL-driven sessions table is consistent with the model's own logic. (AuthIdentity lives in the main table because it is *durable* identity mapping; a session is *ephemeral*, which is the distinguishing property.)
+- **Ephemeral + TTL fit.** Sessions are short-lived and TTL-driven, unlike the durable main-table data. This is the _same reasoning_ ADR-003 used to split the ephemeral price cache into its own table — so a separate, TTL-driven sessions table is consistent with the model's own logic. (AuthIdentity lives in the main table because it is _durable_ identity mapping; a session is _ephemeral_, which is the distinguishing property.)
 
-**Why DynamoDB and not Redis.** Redis (ElastiCache) is the textbook session store, but it is an **always-on, VPC-bound server** — at odds with our scale-to-zero serverless stack, and it would add cost, VPC networking (which can worsen Lambda cold starts), and operational surface. Crucially, our hybrid model hits the store **only on refresh/logout** (the access token needs no lookup), so Redis's per-request-speed advantage does not apply. DynamoDB gives durable storage, native TTL, and stays within the stack we already run. *(If we ever moved to pure server-side sessions at very large scale, Redis or DAX could be revisited — far beyond Phase 1.)*
+**Why DynamoDB and not Redis.** Redis (ElastiCache) is the textbook session store, but it is an **always-on, VPC-bound server** — at odds with our scale-to-zero serverless stack, and it would add cost, VPC networking (which can worsen Lambda cold starts), and operational surface. Crucially, our hybrid model hits the store **only on refresh/logout** (the access token needs no lookup), so Redis's per-request-speed advantage does not apply. DynamoDB gives durable storage, native TTL, and stays within the stack we already run. _(If we ever moved to pure server-side sessions at very large scale, Redis or DAX could be revisited — far beyond Phase 1.)_
 
 > **✅ Data-model reconciliation (done 2026-09-07).** This sessions table is a **third table**, an addition to the data model's original "two tables" design (a fourth, temporary waitlist table was later added — data model §9.8). It has been reconciled into `DYNAMODB_DATA_MODEL.md` — **ADR-003 extended** to name it a second purposeful exception, the "Tables at a Glance" (data model §6.1) now shows four tables, and a **data model §9.7** records this sessions table (with the TRD as its owner). Rationale: ephemeral + TTL + least-privilege credential isolation.
 
@@ -593,7 +582,6 @@ This is the standard OAuth access/refresh pattern; nothing here is hand-rolled c
 
 **Why this split.** Each token sits where its risk is closed: the **valuable, long-lived refresh token is XSS-proof** (`HttpOnly`, unreadable by scripts), and the **short-lived access token is CSRF-proof** (manually attached header, never auto-sent). This covers both attack classes without either getting a clean shot at a valuable, long-lived credential — and it pairs cleanly with tRPC's header-based auth.
 
-
 ### 5.6 OAuth & JWT libraries — `openid-client` + `jose`
 
 **In plain terms.** We use well-maintained libraries for the security-critical crypto rather than writing it ourselves.
@@ -601,23 +589,22 @@ This is the standard OAuth access/refresh pattern; nothing here is hand-rolled c
 **Decision.**
 
 - **`openid-client`** runs the Google OIDC authorization-code flow — PKCE, `state`/`nonce`, and ID-token verification against Google's JWKS (with key rotation handled for us).
-- **`jose`** signs and verifies our own access-token JWTs, using **asymmetric keys** (RS256/ES256): the **private signing key is held only by `auth-api`** (in SSM), and the **public verification key** is distributed to the other Lambdas. So only `auth-api` can *mint* tokens; every Lambda can *verify* them with the public key. This makes the "`auth-api` is the sole token issuer" boundary IAM-enforced, completing the isolation from §4.2/§5.4 (a symmetric shared secret would let any verifying Lambda also forge tokens).
+- **`jose`** signs and verifies our own access-token JWTs, using **asymmetric keys** (RS256/ES256): the **private signing key is held only by `auth-api`** (in SSM), and the **public verification key** is distributed to the other Lambdas. So only `auth-api` can _mint_ tokens; every Lambda can _verify_ them with the public key. This makes the "`auth-api` is the sole token issuer" boundary IAM-enforced, completing the isolation from §4.2/§5.4 (a symmetric shared secret would let any verifying Lambda also forge tokens).
 
 **Why.** Auth crypto is the worst place to hand-roll: subtle mistakes (mis-validating `nonce`, skipping a JWKS signature check, mishandling PKCE or token `aud`/`iss`) become account-takeover vulnerabilities. These libraries encode the specs correctly, are battle-tested, and are mature in TypeScript/Node (consistent with §3). "Self-managed" (ADR-013) means **we own the orchestration and session**, not that we implement crypto primitives by hand.
 
 **Alternatives considered.**
 
 - **Passport.js.** Built around Express/long-running-server middleware and stateful `express-session` — the opposite of our serverless + stateless-JWT model. Rejected as architecturally misaligned.
-- **Auth.js / NextAuth.** Excellent when the Next.js app *is* the whole application (frontend + auth + API together). But our identity system of record is the **standalone backend** (tRPC/Lambda), not Next.js; Auth.js would place session/identity ownership in the Next layer and impose its own session/user schema, creating two competing homes for identity and clashing with our AuthIdentity mapping, hybrid tokens, and dedicated sessions table. Rejected as misaligned with our topology.
-
+- **Auth.js / NextAuth.** Excellent when the Next.js app _is_ the whole application (frontend + auth + API together). But our identity system of record is the **standalone backend** (tRPC/Lambda), not Next.js; Auth.js would place session/identity ownership in the Next layer and impose its own session/user schema, creating two competing homes for identity and clashing with our AuthIdentity mapping, hybrid tokens, and dedicated sessions table. Rejected as misaligned with our topology.
 
 ### 5.7 Enforcement — tRPC auth middleware + three procedure types
 
-**In plain terms.** One central gatekeeper runs before every protected operation and answers three questions: *is this a real, logged-in user?*, *exactly which user are they?*, and *are they allowed to do this?* Individual procedures never re-implement these checks, so none can accidentally skip them.
+**In plain terms.** One central gatekeeper runs before every protected operation and answers three questions: _is this a real, logged-in user?_, _exactly which user are they?_, and _are they allowed to do this?_ Individual procedures never re-implement these checks, so none can accidentally skip them.
 
 **Decision.** A tRPC **middleware** plus three **procedure types**:
 
-1. **Middleware.** On each request, read the `Authorization: Bearer <access token>` header, **verify the JWT signature with `jose` using the public verification key** (no store lookup, no private-key access), and extract `userId` + `role` from its claims. Inject them into the tRPC **context**. The `userId` therefore always comes from the **verified token — never from client input.** This middleware runs in **all four API Lambdas**; only `auth-api` additionally holds the private key to *issue* tokens (§5.6).
+1. **Middleware.** On each request, read the `Authorization: Bearer <access token>` header, **verify the JWT signature with `jose` using the public verification key** (no store lookup, no private-key access), and extract `userId` + `role` from its claims. Inject them into the tRPC **context**. The `userId` therefore always comes from the **verified token — never from client input.** This middleware runs in **all four API Lambdas**; only `auth-api` additionally holds the private key to _issue_ tokens (§5.6).
 2. **`publicProcedure`** — no auth. The sign-in, OAuth callback, token refresh, and logout endpoints (hosted by `auth-api`, §4.2) are public in this sense, as is a health check.
 3. **`protectedProcedure`** — requires a valid access token; rejects with `UNAUTHORIZED` otherwise. The **default** for all user-data operations (`trades`, `journal`, `xirr`, `import.*`, etc.).
 4. **`adminProcedure`** — requires a valid token **and** `role === "admin"`; rejects a non-admin with `FORBIDDEN`. Used by `admin-api` (mapper + symbol management).
@@ -630,11 +617,9 @@ This is the standard OAuth access/refresh pattern; nothing here is hand-rolled c
 
 Zerodha is added in Phase 2 as a **second provider alongside Google** (ADR-013): the same flow, a second AuthIdentity item per user pointing at the same `userId` (account-linking is OQ-G, deferred). No change to the session mechanism or the sessions table is required to add it.
 
-
-
 ---
 
-## 6. External Integrations  🟢 Authored
+## 6. External Integrations 🟢 Authored
 
 > Scope: the market-data integration (current price + historical series) that feeds the price caches; the range/granularity for the FR-H5 chart (**resolves OQ-E**); a cross-reference to the Google OAuth/JWKS integration (decided in §5); and provider abstraction, failure handling, and the Phase-2 Zerodha seam.
 
@@ -651,7 +636,7 @@ Beyond Folio has exactly three external integrations: **Google OAuth/OIDC** (set
 
 The application (XIRR, Evaluate, the chart) calls **only** this interface. A small routing step behind it decides which provider serves a given request **by `currency`**: `INR` → the India-capable provider (Zerodha Kite); `USD` → the US provider (Twelve Data). Currency (not exchange) is the routing axis because the broker files reliably carry the account currency but not the exchange — only Zerodha names it — and currency is also the price-cache key (data model §9.2).
 
-**Why.** The hard constraint is **India (NSE/BSE) coverage** — US market data is abundant and cheap, but fewer global providers cover Indian equities well. The abstraction makes the *set of providers* an implementation detail that costs ~1/10 to change:
+**Why.** The hard constraint is **India (NSE/BSE) coverage** — US market data is abundant and cheap, but fewer global providers cover Indian equities well. The abstraction makes the _set of providers_ an implementation detail that costs ~1/10 to change:
 
 - Route everything by currency to the matching provider behind the interface.
 - Swap a provider → change one adapter + the routing rule; nothing else changes.
@@ -659,6 +644,7 @@ The application (XIRR, Evaluate, the chart) calls **only** this interface. A sma
 Because the app only ever calls the interface, none of these ripple beyond the routing spot. The data model already supports this — `PRICEHIST#` holds "whatever series the provider returns" (data model §9.6), so a provider swap needs no schema change.
 
 **Providers (Phase 1, resolves OQ-E provider choice):**
+
 - **INR → Zerodha Kite API.** Kite serves both current and historical prices for NSE/BSE. It is already a planned Phase-2 login provider, so it is not a throwaway dependency. Note: Kite historical data requires a **paid historical-data subscription** and a **user Kite session/API key**.
 - **USD → Twelve Data.** Chosen over AlphaVantage, whose free tier (~25 requests/day) would throttle the historical-series backfill even at Phase-1 scale (~20 users). Needs an API key stored in SSM (§8).
 
@@ -668,10 +654,10 @@ Both sit behind the one interface, routed by currency; a later change (adding, s
 
 Two distinct needs, each fronted by its own cache in the auxiliary price-cache table (per the data model §9). The **caching pattern is already locked** (ADR-008/ADR-014); this section only records the integration and its tunables.
 
-| Need | Cache item | Freshness | Used by |
-| --- | --- | --- | --- |
-| Current/latest price | `PRICE#<canonicalSymbol>#<currency>` | short TTL (~minutes) | XIRR valuation, Evaluate |
-| Historical daily series | `PRICEHIST#<canonicalSymbol>#<currency>` | 1-day (`fetchedDate == today`) | FR-H5 chart line |
+| Need                    | Cache item                               | Freshness                      | Used by                  |
+| ----------------------- | ---------------------------------------- | ------------------------------ | ------------------------ |
+| Current/latest price    | `PRICE#<canonicalSymbol>#<currency>`     | short TTL (~minutes)           | XIRR valuation, Evaluate |
+| Historical daily series | `PRICEHIST#<canonicalSymbol>#<currency>` | 1-day (`fetchedDate == today`) | FR-H5 chart line         |
 
 **Freshness windows are application config, not schema** (data-model assumption A-5). Recommended Phase-1 defaults, set via environment variable / deployment config (§8) and tunable per environment:
 
@@ -694,23 +680,23 @@ The cache absorbs almost all upstream load: lazy fetch + reuse means many same-d
 
 ### 6.4 The "last completed session" rule
 
-**In plain terms.** A chart of *daily closes* should never show an incomplete price for a day that is still trading. So the series always ends at the **last completed trading session**, and the chart tells the user the date it is current to.
+**In plain terms.** A chart of _daily closes_ should never show an incomplete price for a day that is still trading. So the series always ends at the **last completed trading session**, and the chart tells the user the date it is current to.
 
 **Decision.**
 
 - The historical series' most recent point is the **last completed trading session** for that market. Any **provisional / in-progress current-day bar is dropped** before caching/serving.
 - The chart is labeled **"as of `<date>`"** (the last completed session's date), so the user knows the data's currency. Weekends and holidays are handled naturally — "last completed session" is simply the most recent day the market actually traded (e.g. Friday's close shown across a weekend).
 
-**Why.** Plotting a partial current-day close would misrepresent the day's performance on a daily-close chart. Anchoring to the last *completed* session is unambiguous and honest.
+**Why.** Plotting a partial current-day close would misrepresent the day's performance on a daily-close chart. Anchoring to the last _completed_ session is unambiguous and honest.
 
-**Relationship to `fetchedDate` (an important clarification).** `fetchedDate` governs only **re-fetch timing** (should we call the provider again today?) — it does **not** determine which trading day the series ends on. These two concerns are distinct: a series may be *fetched today* yet correctly *end at yesterday's close* because today's session hasn't completed.
+**Relationship to `fetchedDate` (an important clarification).** `fetchedDate` governs only **re-fetch timing** (should we call the provider again today?) — it does **not** determine which trading day the series ends on. These two concerns are distinct: a series may be _fetched today_ yet correctly _end at yesterday's close_ because today's session hasn't completed.
 
 **Open sub-question (carried to §10).** Providers differ in whether they return a provisional current-day bar. Whichever provider(s) we choose, the market-data adapter must **verify this behavior and strip any incomplete current-day point** so the "last completed session" rule holds uniformly.
 
 ### 6.5 Google OAuth/JWKS (cross-reference) and the Phase-2 Zerodha seam
 
 - **Google OAuth / OIDC / JWKS** is a decided integration — see §5 (`openid-client` runs the authorization-code flow and verifies Google's ID token against Google's JWKS). It is **not re-decided here**; §6 lists it only for completeness as one of the three external integrations.
-- **Phase-2 Zerodha login** is a seam, not Phase-1 work: Zerodha is added as a *second* OAuth provider alongside Google (ADR-013, §5.8). It requires no change to the market-data integration.
+- **Phase-2 Zerodha login** is a seam, not Phase-1 work: Zerodha is added as a _second_ OAuth provider alongside Google (ADR-013, §5.8). It requires no change to the market-data integration.
 
 ### 6.6 Failure & rate-limit handling — graceful degradation
 
@@ -724,30 +710,28 @@ The cache absorbs almost all upstream load: lazy fetch + reuse means many same-d
 
 **Why.** Market data is an external dependency we do not control; a transient provider problem should never take down a user's trade history or portfolio view. Degrading to cached-or-notice keeps the app usable.
 
-
-
 ---
 
-## 7. Storage & Infrastructure  🟢 Authored
+## 7. Storage & Infrastructure 🟢 Authored
 
-> Scope: how the storage and infrastructure the earlier sections rely on are actually provisioned — the DynamoDB tables (incl. PITR and TTL), the S3 bucket implementing ADR-016 plus the import temp/staging area, SQS/DLQ, secrets & config handling, and the networking posture. This section *references* the data model (`DYNAMODB_DATA_MODEL.md`) for item/key/GSI definitions rather than redefining them.
+> Scope: how the storage and infrastructure the earlier sections rely on are actually provisioned — the DynamoDB tables (incl. PITR and TTL), the S3 bucket implementing ADR-016 plus the import temp/staging area, SQS/DLQ, secrets & config handling, and the networking posture. This section _references_ the data model (`DYNAMODB_DATA_MODEL.md`) for item/key/GSI definitions rather than redefining them.
 
 ### 7.1 DynamoDB — four tables
 
 Beyond Folio uses **four DynamoDB tables**. Two are from the data model; the third (sessions) was added in §5.4; the fourth (waitlist) is a **temporary** launch-gating store (data model §9.8) removed at full launch.
 
-| Table | Purpose | Capacity | PITR | TTL |
-| --- | --- | --- | --- | --- |
-| **`BeyondFolio`** (main) | Durable system of record — all user-owned data + global admin config (see data model §6–§8) | On-demand | **ON** | — |
-| **Price-cache** (auxiliary) | Ephemeral market data — `PRICE#` (current) + `PRICEHIST#` (historical series) | On-demand | OFF | on `expiresAt` |
-| **Sessions** | Ephemeral refresh tokens (§5.4) | On-demand | OFF | on `expiresAt` |
-| **Waitlist** _(temporary)_ | Launch-gating email list (`email` PK); **retired at full launch** when open signup goes live (data model §9.8) | On-demand | OFF | — |
+| Table                       | Purpose                                                                                                        | Capacity  | PITR   | TTL            |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------- | --------- | ------ | -------------- |
+| **`BeyondFolio`** (main)    | Durable system of record — all user-owned data + global admin config (see data model §6–§8)                    | On-demand | **ON** | —              |
+| **Price-cache** (auxiliary) | Ephemeral market data — `PRICE#` (current) + `PRICEHIST#` (historical series)                                  | On-demand | OFF    | on `expiresAt` |
+| **Sessions**                | Ephemeral refresh tokens (§5.4)                                                                                | On-demand | OFF    | on `expiresAt` |
+| **Waitlist** _(temporary)_  | Launch-gating email list (`email` PK); **retired at full launch** when open signup goes live (data model §9.8) | On-demand | OFF    | —              |
 
 **Decisions.**
 
 - **On-demand capacity** for all three — matches the small, bursty, mostly-idle load (§2) with no capacity to manage; scales to zero cost when idle.
 - **PITR (point-in-time recovery) on the main table only.** The main table holds irreplaceable financial data, so continuous backup is essential. The price-cache and sessions tables are **ephemeral and rebuildable by design** (TTL-driven) — restoring an old cache/session snapshot is meaningless or counterproductive (it could resurrect revoked sessions), so PITR is off for them.
-- **TTL** enabled on the price-cache and sessions tables' `expiresAt` attributes for automatic, zero-maintenance expiry. (The freshness *windows* are app-config, §6.2.)
+- **TTL** enabled on the price-cache and sessions tables' `expiresAt` attributes for automatic, zero-maintenance expiry. (The freshness _windows_ are app-config, §6.2.)
 - **GSIs** — the three GSIs (trades-by-broker, journal-entries-by-tag, trades-by-ticker) are defined in the data model (§8) and are **provisioned as specified there**; this TRD does not redefine them.
 
 > **✅ Data-model reconciliation.** The **sessions table** is a third table, and the **waitlist table** a fourth (temporary), both additions to the data model's original "two tables" design. They are reconciled into `DYNAMODB_DATA_MODEL.md` (ADR-003 extended; data model §6.1 now shows four tables; sessions in data model §9.7, the temporary waitlist in data model §9.8). The sessions rationale (ephemeral + TTL + least-privilege credential isolation) is in §5.4; the waitlist is launch-only scaffolding retired at full launch.
@@ -758,7 +742,7 @@ A **single S3 bucket** holds both the permanent raw import files (ADR-016) and t
 
 **Layout.**
 
-- **Permanent (keep-forever):** `<userId>/<contentHash>` — the original bytes of every *confirmed* import (ADR-016). No expiry.
+- **Permanent (keep-forever):** `<userId>/<contentHash>` — the original bytes of every _confirmed_ import (ADR-016). No expiry.
 - **Temp/staging:** a `temp/…` prefix — holds the two artifacts parked between the import's two gates (§2.3): the **raw uploaded file** (before confirm) and the **parked normalized batch** (produced by the worker, awaiting confirm).
 
 **Bucket posture (ADR-016).** SSE-S3 (Amazon-managed AES-256 default encryption), **Block Public Access ON**, **TLS-only** bucket policy, **versioning OFF**, backend-service-only access with least-privilege IAM (no user/admin download UI in Phase 1). Region is a single app-config value.
@@ -784,7 +768,7 @@ Two distinct classes, handled differently:
 - **Secrets** (Google OAuth client secret, our JWT **private signing key**, market-data provider API keys) → **AWS SSM Parameter Store, as encrypted `SecureString` parameters** (KMS-encrypted at rest, least-privilege IAM per parameter, CloudTrail audit; effectively free at our scale). The JWT **public verification key** is not secret and is distributed to the verifying Lambdas (§5.6).
 - **Non-secret configuration** (table/bucket names, region, the price freshness windows from §6.2) → **plain Lambda environment variables**.
 
-**Access via a `getSecret()` helper.** All secret reads go through one small helper (which reads SSM and caches in memory), so no caller touches the store directly. This is both good hygiene and a cheap migration seam: switching to **AWS Secrets Manager** later (e.g. if automatic key *rotation* is ever required) is a ~1–2/10 change — rewrite the one helper, move the values, adjust IAM — with no caller changes.
+**Access via a `getSecret()` helper.** All secret reads go through one small helper (which reads SSM and caches in memory), so no caller touches the store directly. This is both good hygiene and a cheap migration seam: switching to **AWS Secrets Manager** later (e.g. if automatic key _rotation_ is ever required) is a ~1–2/10 change — rewrite the one helper, move the values, adjust IAM — with no caller changes.
 
 **Least-privilege wiring.** Each Lambda is granted read access to **only** the parameters it needs — e.g. only **`auth-api`** reads the OAuth client secret and the JWT **private signing key** and can access the sessions table (§5.4); the other Lambdas hold only the JWT **public** verification key; only the market-data adapter reads the provider API keys.
 
@@ -794,15 +778,13 @@ Two distinct classes, handled differently:
 
 **Decision.** Beyond Folio runs **without a VPC.** Every backend dependency is either an **IAM-secured managed AWS API** (DynamoDB, S3, SQS, SSM) or a **public HTTPS endpoint** (Google OAuth/JWKS, market-data providers). None is a private network-addressable server, so there is nothing that needs private network placement.
 
-**Why.** Our security model is **identity-based (IAM + TLS)**, not network-based — access is controlled by *who you are* (IAM), not *where you are* (network position). Staying out of a VPC keeps Lambda **cold starts fast** (no ENI attachment) and avoids the cost/complexity of subnets and NAT gateways. This is consistent with the §2 serverless choice and the §5.4 decision to reject Redis (whose VPC requirement was one reason against it).
+**Why.** Our security model is **identity-based (IAM + TLS)**, not network-based — access is controlled by _who you are_ (IAM), not _where you are_ (network position). Staying out of a VPC keeps Lambda **cold starts fast** (no ENI attachment) and avoids the cost/complexity of subnets and NAT gateways. This is consistent with the §2 serverless choice and the §5.4 decision to reject Redis (whose VPC requirement was one reason against it).
 
 **Caveat (documented).** Introducing any future **VPC-bound resource** (e.g. an RDS database or ElastiCache/Redis) would pull the entire compute tier into a VPC — a deliberate architectural change, not to be done casually.
 
-
-
 ---
 
-## 8. Deployment, Environments & CI/CD  🟢 Authored
+## 8. Deployment, Environments & CI/CD 🟢 Authored
 
 > Scope: how everything decided so far is provisioned, hosted, and shipped — the Infrastructure-as-Code tool, how the Next.js app is hosted, the environments we run, the CI/CD pipeline, and the one-time seed/bootstrap steps.
 
@@ -828,7 +810,7 @@ Two distinct classes, handled differently:
 
 **Why.**
 
-- **Consistency.** Next.js becomes just more CDK-defined AWS infrastructure, deployed by the *same* pipeline, in the *same* AWS account — one IaC definition, one mental model, fully aligned with §8.1.
+- **Consistency.** Next.js becomes just more CDK-defined AWS infrastructure, deployed by the _same_ pipeline, in the _same_ AWS account — one IaC definition, one mental model, fully aligned with §8.1.
 - **Cost.** Pay-per-use AWS resources (Lambda renders + CloudFront + S3), scale-to-zero — the cheapest option at our scale (roughly a few dollars/month, often within free tier for the static/CDN portion).
 - **Cheapest exit doors.** Because the app is standard Next.js, migrating later is cheap: → Vercel ~1–2/10, → Amplify ~2–3/10.
 
@@ -860,7 +842,7 @@ Two distinct classes, handled differently:
 - **CI gate (every PR/push):** install → **lint** → **type-check (`tsc`)** → **unit tests** → **integration tests** (against DynamoDB Local / LocalStack). Merges are blocked unless this passes.
 - **CD (on merge to `main`):** build (backend bundles + Next.js/OpenNext) → **`cdk deploy` to production, fully automated with no manual approval gate.**
 
-**Why gate-less CD is safe here (compensating controls).** Because nothing stops a deploy after merge — and there is no staging safety net — the guardrails sit *before* merge and *around* the deploy:
+**Why gate-less CD is safe here (compensating controls).** Because nothing stops a deploy after merge — and there is no staging safety net — the guardrails sit _before_ merge and _around_ the deploy:
 
 - **The CI gate is the guardrail** — strong, required pre-merge checks (this raises the importance of the test strategy in §9).
 - **Branch protection** — `main` requires PR review + green CI, so a merge is a deliberate, reviewed act.
@@ -881,11 +863,9 @@ Two one-time/rare setup needs that normal user activity does not create.
 
 This is recorded as an **operational runbook step, not pipeline code** — deliberately, because admin elevation is a rare, privileged action that should never happen by automated-deploy accident. Subsequent admins are promoted by an existing admin through normal admin functionality.
 
-
-
 ---
 
-## 9. Non-Functional Requirements  🟢 Authored
+## 9. Non-Functional Requirements 🟢 Authored
 
 > Scope: the cross-cutting qualities — security, PII protection, observability, error handling, limits, performance/scale, backup/DR, and testing. Much of this consolidates decisions made in §4–§8 (cross-referenced, not re-decided); the genuinely new decisions are observability, the upload limit, the PII-in-logs policy, and the testing strategy.
 
@@ -928,13 +908,13 @@ Consolidated from earlier sections:
 ### 9.5 Input validation & limits
 
 - **Every API input is validated with Zod** (§4.4) before business logic runs — malformed input is rejected up front (also an input-hygiene defense).
-- **File upload is capped at 5 MB**, enforced by a **pre-signed S3 URL** (the browser uploads directly to the S3 `temp/` prefix; the cap is baked into the URL and enforced by S3, then re-validated server-side). The upload URL is issued by a `protectedProcedure` scoped to the requesting user's own key with a short expiry. *(This refines the "raw file written to temp S3" step of §2.3/§7.2: the upload is a pre-signed direct-to-S3 write, so file bytes never transit our Lambda — smaller attack surface and no API Gateway payload ceiling.)* 5 MB is far above any realistic broker export (the worst-case ~5,000-row file is well under 1 MB), so it blocks abuse without ever bothering legitimate users.
+- **File upload is capped at 5 MB**, enforced by a **pre-signed S3 URL** (the browser uploads directly to the S3 `temp/` prefix; the cap is baked into the URL and enforced by S3, then re-validated server-side). The upload URL is issued by a `protectedProcedure` scoped to the requesting user's own key with a short expiry. _(This refines the "raw file written to temp S3" step of §2.3/§7.2: the upload is a pre-signed direct-to-S3 write, so file bytes never transit our Lambda — smaller attack surface and no API Gateway payload ceiling.)_ 5 MB is far above any realistic broker export (the worst-case ~5,000-row file is well under 1 MB), so it blocks abuse without ever bothering legitimate users.
 
 ### 9.6 Performance & scale
 
 **Scale envelope (Phase 1):** tens of users, ~500–2,000 trades per user per year, total data well under 1 GB, low and bursty concurrency. The serverless + on-demand DynamoDB design (§2, §7) absorbs this comfortably and scales to near-zero cost when idle.
 
-**Not a real-time system, no numeric SLAs in Phase 1.** Beyond Folio reviews *historical* activity — nothing is time-critical, and being a second or two slower is never a failure. Accordingly, Phase 1 sets **relaxed, qualitative targets** rather than formal numeric SLAs:
+**Not a real-time system, no numeric SLAs in Phase 1.** Beyond Folio reviews _historical_ activity — nothing is time-critical, and being a second or two slower is never a failure. Accordingly, Phase 1 sets **relaxed, qualitative targets** rather than formal numeric SLAs:
 
 - Responsive under normal use; an occasional **cold-start delay is acceptable** (§2.1).
 - Typical imports complete in the background within seconds (the async model means the user is never blocked waiting).
@@ -958,17 +938,15 @@ Because CD is **gate-less and there is no staging** (§8), the automated test su
 
 **Emphasis principle:** rigor is concentrated where bugs actually live for us — import pipeline + fixtures, dedup idempotency, auth isolation, and XIRR — rather than spread thin chasing a coverage number. **Full E2E suites and coverage thresholds are deferred Phase-2 hardening** (§10), to be added if user count, team size, change velocity, or a "passed unit tests but broke in prod" incident warrants it.
 
-
-
 ---
 
-## 10. Open TRD Questions & Phase-2 Seams  🟢 Authored
+## 10. Open TRD Questions & Phase-2 Seams 🟢 Authored
 
 > Scope: everything left open, deferred, or handed to Phase 2 across §2–§9, gathered in one place so nothing is lost. This section introduces no new decisions. (All source-doc reconciliations raised during authoring have been **applied** — see §2.6 — so none remain outstanding here.)
 
 ### 10.1 Open TRD questions (to resolve at/before build time)
 
-These are deliberately-left-open points *within* decisions already made:
+These are deliberately-left-open points _within_ decisions already made:
 
 1. **Market-data provider selection (§6.1) — RESOLVED.** Providers chosen: **INR → Zerodha Kite API**, **USD → Twelve Data**, routed by currency behind the locked abstraction (§6.1). Remaining verification (real NSE/BSE coverage depth, cost, rate limits, current-day-bar behaviour) is integration-prep in E11-T1, not a selection decision.
 2. **Per-provider current-day-bar behavior (§6.4).** Confirm whether the chosen provider returns a provisional current-day bar that the market-data adapter must strip, to uphold the "last completed session" rule.
@@ -980,12 +958,12 @@ Choices where Phase 1 deliberately took a lighter option and named the escalatio
 - **Staging environment (§8.3)** — add a cloud staging tier if production incidents warrant; ~1/10 via CDK.
 - **Full E2E suite + coverage thresholds (§9.8)** — beyond the balanced required tiers, if user count / team size / change velocity grows or a "passed unit tests but broke in prod" incident occurs.
 - **Formal SLOs/SLAs (§9.6)** — Phase 1 is not real-time and sets no numeric SLAs; introduce formal objectives if external users ever expect guarantees.
-- **AWS Secrets Manager (§7.4)** — migrate from SSM Parameter Store if automatic secret *rotation* is ever required; ~1–2/10 via the `getSecret()` helper.
+- **AWS Secrets Manager (§7.4)** — migrate from SSM Parameter Store if automatic secret _rotation_ is ever required; ~1–2/10 via the `getSecret()` helper.
 - **Third-party observability (§9.3)** — add Sentry/Datadog if richer frontend error visibility or APM becomes valuable (CloudWatch + X-Ray suffice for Phase 1).
 
 ### 10.3 Phase-2 feature seams (out of Phase-1 scope; the architecture leaves room)
 
-- **Zerodha login + account-linking** (ADR-013 / OQ-G, §5.8) — Zerodha as a *second* OAuth provider alongside Google; a second AuthIdentity item pointing at the same `userId`. No change to the session mechanism or sessions table is needed to add it.
+- **Zerodha login + account-linking** (ADR-013 / OQ-G, §5.8) — Zerodha as a _second_ OAuth provider alongside Google; a second AuthIdentity item pointing at the same `userId`. No change to the session mechanism or sessions table is needed to add it.
 - **Multi-account Fidelity** — Phase 1 has one account per broker (fed by a single-account file); accepting a combined multi-account file and splitting it into distinct accounts is deferred (PRD FR-I2).
 - **Undo an import** (PRD §6, O6) — the retained permanent S3 raw files + the `ImportedFile` record are the prerequisite the design already preserves; the reprocess/undo engine itself is Phase 2.
 - **Account-number encryption-at-rest** — flagged Phase 2 in the data model; Phase 1 stores account numbers unencrypted within the backend-only store.
@@ -1005,6 +983,4 @@ Not open questions — reassurances that key Phase-1 choices were made to keep l
 
 The data model carries its own open questions and assumptions (OQ-A … OQ-T) — Zerodha F&O open/close ambiguity, DRIP record pattern, per-broker verification items, etc. These are **owned by `DYNAMODB_DATA_MODEL.md` §13** and are not duplicated here; see that section for their current disposition. (OQ-E and OQ-F, the two the PRD deferred to this TRD, are resolved in §6 and §5 respectively.)
 
-
 ---
-

@@ -1,0 +1,11 @@
+{
+  "name": "@beyondfolio/auth-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@beyondfolio/shared-types": "workspace:*",
+    "@beyondfolio/shared-dynamo": "workspace:*"
+  }
+}

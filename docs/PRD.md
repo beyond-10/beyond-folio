@@ -20,14 +20,14 @@
 
 **Changelog**
 
-| Version | Date       | Summary                                                                              |
-| ------- | ---------- | ------------------------------------------------------------------------------------ |
-| 1.0     | 2026-07-17 | Initial PRD for Phase 1.                                                             |
-| 1.1     | 2026-07-25 | Auth pivot to self-managed OAuth 2.0 (Google P1, Zerodha P2); FR-A1…A6, OQ-F/OQ-G.   |
-| 1.2     | 2026-07-27 | Added FR-H5 trade price chart with buy/sell markers; OQ-E.                            |
-| 1.3     | 2026-09-06 | Import-mechanism decisions (D1–D14): FR-I2 single-account Fidelity (multi-account P2), FR-I4 confirmation-on-upload wording + canonical import statement, FR-H2/FR-M1 per-broker / broker-account language alignment. |
-| 1.4     | 2026-09-07 | TRD-driven import-flow refinement: FR-I4 updated to the two-step (Proceed to Import → preview → Confirm) asynchronous flow with background processing + status notifications. |
-| 1.5     | 2026-09-07 | Sync with TRD: OQ-F resolved (§5 hybrid JWT + refresh) and OQ-E largely resolved (§6 approach + 1M/6M/1Y range; provider TBD); FR-I2 clarified (single-account Fidelity accepted, multi-account rejected — not "consolidated"). |
+| Version | Date       | Summary                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-07-17 | Initial PRD for Phase 1.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 1.1     | 2026-07-25 | Auth pivot to self-managed OAuth 2.0 (Google P1, Zerodha P2); FR-A1…A6, OQ-F/OQ-G.                                                                                                                                                                                                                                                                                                                                                                          |
+| 1.2     | 2026-07-27 | Added FR-H5 trade price chart with buy/sell markers; OQ-E.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 1.3     | 2026-09-06 | Import-mechanism decisions (D1–D14): FR-I2 single-account Fidelity (multi-account P2), FR-I4 confirmation-on-upload wording + canonical import statement, FR-H2/FR-M1 per-broker / broker-account language alignment.                                                                                                                                                                                                                                       |
+| 1.4     | 2026-09-07 | TRD-driven import-flow refinement: FR-I4 updated to the two-step (Proceed to Import → preview → Confirm) asynchronous flow with background processing + status notifications.                                                                                                                                                                                                                                                                               |
+| 1.5     | 2026-09-07 | Sync with TRD: OQ-F resolved (§5 hybrid JWT + refresh) and OQ-E largely resolved (§6 approach + 1M/6M/1Y range; provider TBD); FR-I2 clarified (single-account Fidelity accepted, multi-account rejected — not "consolidated").                                                                                                                                                                                                                             |
 | 1.6     | 2026-09-22 | Pre-implementation reconciliation: **OQ-E fully resolved** — providers chosen (INR → Zerodha Kite, USD → Twelve Data), routed by currency; price-cache key changed from `symbol+exchange` to `symbol+currency`; table count → 4 (added temporary Waitlist); FR-X1 "holdings" clarified (derived transient quantity vs. deferred positions view); admin-provisioning acceptance criterion added (manual DynamoDB role edit, no in-app promotion in Phase 1). |
 
 ---
@@ -69,11 +69,10 @@ A modestly active investor typically holds accounts across several brokers — e
 ### 4.2 Non-Goals (explicitly out of Phase 1)
 
 - Live holdings / portfolio-positions view
-- Realized / unrealized profit & loss reporting *(incl. realized P/L on the trade chart's sell markers — Phase 2; see FR-H5)*
-- Analytics dashboards / portfolio-wide summary charts *(the single per-trade price chart in FR-H5 is in scope; this excludes dashboard-style analytics)*
+- Realized / unrealized profit & loss reporting _(incl. realized P/L on the trade chart's sell markers — Phase 2; see FR-H5)_
+- Analytics dashboards / portfolio-wide summary charts _(the single per-trade price chart in FR-H5 is in scope; this excludes dashboard-style analytics)_
 - Currency conversion or a single blended multi-currency return
 - Placing trades, tax reporting, or investment advice
-
 
 ### 4.3 Success Metrics (KPIs)
 
@@ -104,9 +103,9 @@ flowchart LR
     A[Admin<br/>platform operator] -->|corrects symbol mappings<br/>user mgmt deferred - OQ-H| System[(Platform / shared config)]
 ```
 
-| Role      | Can do                                                                                           | Sees                            |
-| --------- | ------------------------------------------------------------------------------------------------ | ------------------------------- |
-| **User**  | Import files, browse own trade history, write journal entries, manage tags, evaluate predictions | **Only their own data**         |
+| Role      | Can do                                                                                               | Sees                            |
+| --------- | ---------------------------------------------------------------------------------------------------- | ------------------------------- |
+| **User**  | Import files, browse own trade history, write journal entries, manage tags, evaluate predictions     | **Only their own data**         |
 | **Admin** | Add/correct corporate-action symbol mappings (user management — disable/delete — deferred; see OQ-H) | Platform / shared configuration |
 
 > **Privacy is a hard rule:** one user's trades, journals, and account data are never visible to anyone else.
@@ -141,14 +140,13 @@ flowchart TB
     end
 ```
 
-
 **Supported brokers (Phase 1):**
 
-| Broker    | Market        | Currency | Files per import                          |
-| --------- | ------------- | -------- | ----------------------------------------- |
-| Robinhood | United States | USD      | 1 CSV                                     |
-| Fidelity  | United States | USD      | 1 CSV (all accounts combined)             |
-| Zerodha   | India         | INR      | 2 files (equity, F&O) — CSV or XLSX       |
+| Broker    | Market        | Currency | Files per import                    |
+| --------- | ------------- | -------- | ----------------------------------- |
+| Robinhood | United States | USD      | 1 CSV                               |
+| Fidelity  | United States | USD      | 1 CSV (all accounts combined)       |
+| Zerodha   | India         | INR      | 2 files (equity, F&O) — CSV or XLSX |
 
 ---
 
@@ -176,14 +174,14 @@ Requirements are grouped by capability. Priority uses **MoSCoW** (Must / Should 
 
 ### 7.2 Import
 
-| ID    | Requirement                                                                                                    | Priority |
-| ----- | -------------------------------------------------------------------------------------------------------------- | -------- |
-| FR-I1 | A user can upload a **Robinhood** activities CSV (equity + options).                                          | Must     |
-| FR-I2 | A user can upload a **Fidelity** activity CSV (equity + options). Phase 1 supports a **single-account** Fidelity export (its rows all belong to that one Fidelity account). A **multi-account (combined) Fidelity file is not supported in Phase 1** — it is detected (by its account-identifying columns) and rejected with a message asking the user to upload an individual-account export; separating a combined multi-account file into distinct accounts is deferred to Phase 2. | Must     |
-| FR-I3 | A user can upload the **Zerodha** set — an **equity** file and an **F&O** file — as separate uploads; each may be **CSV or XLSX**. | Must     |
+| ID    | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Priority |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| FR-I1 | A user can upload a **Robinhood** activities CSV (equity + options).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Must     |
+| FR-I2 | A user can upload a **Fidelity** activity CSV (equity + options). Phase 1 supports a **single-account** Fidelity export (its rows all belong to that one Fidelity account). A **multi-account (combined) Fidelity file is not supported in Phase 1** — it is detected (by its account-identifying columns) and rejected with a message asking the user to upload an individual-account export; separating a combined multi-account file into distinct accounts is deferred to Phase 2.                                                                              | Must     |
+| FR-I3 | A user can upload the **Zerodha** set — an **equity** file and an **F&O** file — as separate uploads; each may be **CSV or XLSX**.                                                                                                                                                                                                                                                                                                                                                                                                                                  | Must     |
 | FR-I4 | The system parses each file into a clean, normalized trade & cash-activity history — **no manual entry of trade data**. The user's input is a **two-step confirmation**: they start the import (_Proceed to Import_), the system processes the file **in the background** and presents a **preview of what it understood** (the trades/cash activity to be added, plus any rows it will skip), and the user then **confirms** to write it. Because processing runs in the background, the user is notified when the preview is ready and when the import completes. | Must     |
-| FR-I5 | Broker accounts are **created automatically** as they are discovered during import.                            | Must     |
-| FR-I6 | The user sees an import result summary (records added / skipped).                                              | Should   |
+| FR-I5 | Broker accounts are **created automatically** as they are discovered during import.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Must     |
+| FR-I6 | The user sees an import result summary (records added / skipped).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Should   |
 
 **Acceptance criteria:**
 
@@ -207,14 +205,13 @@ Requirements are grouped by capability. Priority uses **MoSCoW** (Must / Should 
 
 ### 7.4 Unified Trade History
 
-| ID    | Requirement                                                                                       | Priority |
-| ----- | ------------------------------------------------------------------------------------------------- | -------- |
-| FR-H1 | All trades across all brokers/accounts appear in one combined, chronological view (newest first). | Must     |
-| FR-H2 | The user can filter history to a **single broker**.                                               | Should   |
-| FR-H3 | The user can filter history to a **single ticker**.                                               | Should   |
-| FR-H4 | Opening a trade shows its detail (incl. options details and any journal entries).                 | Must     |
+| ID    | Requirement                                                                                                                                                                                                                                      | Priority |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| FR-H1 | All trades across all brokers/accounts appear in one combined, chronological view (newest first).                                                                                                                                                | Must     |
+| FR-H2 | The user can filter history to a **single broker**.                                                                                                                                                                                              | Should   |
+| FR-H3 | The user can filter history to a **single ticker**.                                                                                                                                                                                              | Should   |
+| FR-H4 | Opening a trade shows its detail (incl. options details and any journal entries).                                                                                                                                                                | Must     |
 | FR-H5 | Opening an **equity** trade (stock/ETF) shows a **price chart** of that ticker with a **marker at each of the user's buy/sell transactions** on it (green circle = buy, red circle = sell); hovering a marker shows type, date, price, quantity. | Should   |
-
 
 ### 7.5 Portfolio Rate of Return (XIRR)
 
@@ -228,7 +225,7 @@ Requirements are grouped by capability. Priority uses **MoSCoW** (Must / Should 
 
 - A user with USD and INR activity sees **two** separate return figures.
 - The figure reflects the timing of every cash flow, not a simple average.
-- **USD XIRR (Robinhood + Fidelity) includes fees/commissions** as cash flows. **INR XIRR (Zerodha) is computed *without* fees/charges in Phase 1** (Zerodha charges live only in a separate P&L report, which Phase 1 does not ingest), and the INR figure is shown with a **clear notice** that it excludes fees/charges/commissions. Capturing Zerodha charges is deferred to Phase 2 (see §10 OQ-I, §11).
+- **USD XIRR (Robinhood + Fidelity) includes fees/commissions** as cash flows. **INR XIRR (Zerodha) is computed _without_ fees/charges in Phase 1** (Zerodha charges live only in a separate P&L report, which Phase 1 does not ingest), and the INR figure is shown with a **clear notice** that it excludes fees/charges/commissions. Capturing Zerodha charges is deferred to Phase 2 (see §10 OQ-I, §11).
 
 ### 7.6 Trading Journal
 
@@ -269,17 +266,16 @@ Requirements are grouped by capability. Priority uses **MoSCoW** (Must / Should 
 
 ### 7.11 Multiple Accounts & Currencies
 
-| ID    | Requirement                                                                                          | Priority |
-| ----- | ---------------------------------------------------------------------------------------------------- | -------- |
+| ID    | Requirement                                                                                                                                                                                                                                                                    | Priority |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
 | FR-M1 | A user can hold accounts at **multiple brokers**, each kept distinct. _(Holding **multiple accounts within one broker** — e.g. Fidelity Individual + Roth + 401k — is deferred to Phase 2; in Phase 1 each broker has one account, fed by that broker's single-account file.)_ | Must     |
-| FR-M2 | The system handles **USD and INR** side by side, each kept in its original currency.                 | Must     |
+| FR-M2 | The system handles **USD and INR** side by side, each kept in its original currency.                                                                                                                                                                                           | Must     |
 
 ### 7.12 Privacy & Data Ownership
 
-| ID    | Requirement                                                                             | Priority |
-| ----- | --------------------------------------------------------------------------------------- | -------- |
-| FR-P1 | A user can only ever access their own data.                                             | Must     |
-
+| ID    | Requirement                                 | Priority |
+| ----- | ------------------------------------------- | -------- |
+| FR-P1 | A user can only ever access their own data. | Must     |
 
 ---
 
@@ -323,37 +319,34 @@ flowchart LR
 
 ## 9. Assumptions, Constraints & Dependencies
 
-| Type       | Item                                                                                      |
-| ---------- | ----------------------------------------------------------------------------------------- |
-| Constraint | Only three brokers in Phase 1: Robinhood, Fidelity, Zerodha.                              |
-| Constraint | USD and INR are kept separate — **no currency conversion** in Phase 1.                    |
-| Constraint | Personal-use / small-scale deployment (tens of users; ~500–2,000 trades/user/year).       |
-| Assumption | Broker file formats remain stable; a format change requires a parser update.              |
-| Assumption | Users obtain statement files from their brokers themselves (no direct broker API).        |
-| Dependency | **Google OAuth 2.0 / OpenID Connect** as the identity provider for "Sign in with Google". |
-| Dependency | External market-data services for current prices (US + India).                            |
+| Type       | Item                                                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Constraint | Only three brokers in Phase 1: Robinhood, Fidelity, Zerodha.                                                                         |
+| Constraint | USD and INR are kept separate — **no currency conversion** in Phase 1.                                                               |
+| Constraint | Personal-use / small-scale deployment (tens of users; ~500–2,000 trades/user/year).                                                  |
+| Assumption | Broker file formats remain stable; a format change requires a parser update.                                                         |
+| Assumption | Users obtain statement files from their brokers themselves (no direct broker API).                                                   |
+| Dependency | **Google OAuth 2.0 / OpenID Connect** as the identity provider for "Sign in with Google".                                            |
+| Dependency | External market-data services for current prices (US + India).                                                                       |
 | Dependency | External market-data service for **historical** price series (backing the FR-H5 trade chart), fetched lazily and reused for the day. |
-
 
 ---
 
 ## 10. Known Limitations & Open Questions
 
-| ID   | Item                                                                                                                                  | Impact      | Status                                                                    |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------- |
-| OQ-A | Two identical same-day, same-amount cash transfers may be recorded only once — **narrowed by D2 to Robinhood only** (Fidelity's running `Cash Balance` and Zerodha's unique `trade_id` make those two brokers immune). | Low (rare)  | Accepted for Phase 1 (Robinhood-only residual)                           |
-| OQ-B | Zerodha F&O files don't state whether a trade _opens_ or _closes_ a position — affects derived holdings for XIRR.                     | High        | Open; resolution planned                                                  |
-| OQ-C | How each broker reports dividend reinvestment (DRIP) is unverified — affects return accuracy.                                         | Medium      | Open; verify against real files                                           |
+| ID   | Item                                                                                                                                                                                                                   | Impact     | Status                                         |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------- |
+| OQ-A | Two identical same-day, same-amount cash transfers may be recorded only once — **narrowed by D2 to Robinhood only** (Fidelity's running `Cash Balance` and Zerodha's unique `trade_id` make those two brokers immune). | Low (rare) | Accepted for Phase 1 (Robinhood-only residual) |
+| OQ-B | Zerodha F&O files don't state whether a trade _opens_ or _closes_ a position — affects derived holdings for XIRR.                                                                                                      | High       | Open; resolution planned                       |
+| OQ-C | How each broker reports dividend reinvestment (DRIP) is unverified — affects return accuracy.                                                                                                                          | Medium     | Open; verify against real files                |
 
-| OQ-D | Whether the user profile is created at signup vs. first login.                                                                        | Low         | **Resolved** — created on first Google sign-in (first-login provisioning) |
+| OQ-D | Whether the user profile is created at signup vs. first login. | Low | **Resolved** — created on first Google sign-in (first-login provisioning) |
 | OQ-E | Historical price data for the FR-H5 trade chart — which external market-data service supplies the series, and the exact time range/granularity shown. | Low | **Resolved.** Approach (lazy fetch, 1-day reuse) and range (selectable 1M/6M/1Y, daily) locked in TRD §6; **providers now chosen — INR → Zerodha Kite API, USD → Twelve Data**, routed **by currency** behind one market-data interface (TRD §6.1). Cache keyed by `(canonicalSymbol, currency)` per data model §9.2; NSE/BSE same-INR collapse accepted (data model OQ-E2). |
-| OQ-F | Session strategy after sign-in (how the user stays logged in — e.g. app-issued token vs. server session, refresh, logout/revocation). | Medium      | **Resolved in TRD §5** — hybrid: short-lived app-signed JWT access token + a stored, revocable refresh token (dedicated sessions table) |
-| OQ-G | Account linking — treating a Google and a Zerodha login as one Beyond Folio account (Phase 2).                                        | Low         | Open; Phase 2                                                             |
-| OQ-H | Admin user management (disable/delete a user) — stated as an admin capability but not modeled.                                        | Medium      | On hold; out of Phase 1 scope (would need a users-enumeration index + a second exception to per-user isolation) |
+| OQ-F | Session strategy after sign-in (how the user stays logged in — e.g. app-issued token vs. server session, refresh, logout/revocation). | Medium | **Resolved in TRD §5** — hybrid: short-lived app-signed JWT access token + a stored, revocable refresh token (dedicated sessions table) |
+| OQ-G | Account linking — treating a Google and a Zerodha login as one Beyond Folio account (Phase 2). | Low | Open; Phase 2 |
+| OQ-H | Admin user management (disable/delete a user) — stated as an admin capability but not modeled. | Medium | On hold; out of Phase 1 scope (would need a users-enumeration index + a second exception to per-user isolation) |
 | OQ-I | Zerodha fees/charges (brokerage, STT, GST, stamp duty, etc.) are **not captured** in Phase 1 — they live only in Zerodha's separate P&L report, which is not ingested — so **INR XIRR excludes fees** and reads slightly optimistic. | Medium | Accepted for Phase 1; capturing Zerodha charges deferred to Phase 2 (mechanism TBD). USD XIRR **does** include fees. |
 | OQ-J | Fidelity's per-row **commission** and **fees** columns. | Low | **Resolved (L7):** the Fidelity trade `Amount` is already **net** of commission+fees, so the net `Amount` is used as the cash leg and the commission/fees columns are kept as **display-only metadata** — never recorded as separate FEE cash flows (that would double-count them in the USD return). Residual (non-blocking): the exact per-column commission-vs-fees split is worth a spot-check against a broader real Fidelity export, but it does not affect the model. |
-
-
 
 ---
 
@@ -362,28 +355,25 @@ flowchart LR
 - **Phase 1 (this PRD):** the 12 in-scope capabilities in §6 — import, dedup, unified history, XIRR, journal, evaluate, scorecard, prices, corporate actions, multi-account/currency, authentication, and the per-trade price chart with buy/sell markers (FR-H5).
 - **Phase 2+ (backlog):** holdings/positions view, realized/unrealized P&L, analytics dashboards, currency conversion, **undo an import** (delete an import job, removing all records it created), **Zerodha login + account-linking** (associating a Google and a Zerodha login with the same Beyond Folio account), **Zerodha fees/charges in INR XIRR** (ingesting the Zerodha P&L/charges report so INR XIRR includes fees — mechanism TBD; see §10 OQ-I), **realized P/L on the trade-chart sell markers** (a cost-basis method — e.g. average-cost or FIFO — plus profit/loss marker colouring and triangle markers, extending FR-H5), MFA, and other enhancements as prioritized.
 
-
-
-
 ---
 
 ## 12. Glossary
 
-| Term                                  | Meaning                                                                                                                                                                |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **XIRR**                              | Extended Internal Rate of Return — a true rate of return that accounts for the timing of every cash flow.                                                              |
-| **Cash flow**                         | Any money movement: deposit, withdrawal, buy, sell, dividend, or fee.                                                                                                  |
-| **Trade**                             | A buy or sell of a security (stock, ETF, option, fund, etc.).                                                                                                          |
-| **Journal entry**                     | A user's note + prediction attached to a trade.                                                                                                                        |
-| **Tag**                               | A user-defined label on a journal entry (e.g. an information source or strategy); carries a win/loss tally.                                                            |
-| **Evaluate**                          | The action that marks a prediction Win / Loss / Breakeven using the current price.                                                                                     |
-| **Corporate action**                  | An event that changes a ticker symbol (merger, spin-off, rename, etc.).                                                                                                |
-| **Broker account**                    | One specific account at one broker; a user may have several **across brokers** (Phase 1: one account per broker — multiple accounts within the same broker is Phase 2).                                                           |
+| Term                                  | Meaning                                                                                                                                                                 |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **XIRR**                              | Extended Internal Rate of Return — a true rate of return that accounts for the timing of every cash flow.                                                               |
+| **Cash flow**                         | Any money movement: deposit, withdrawal, buy, sell, dividend, or fee.                                                                                                   |
+| **Trade**                             | A buy or sell of a security (stock, ETF, option, fund, etc.).                                                                                                           |
+| **Journal entry**                     | A user's note + prediction attached to a trade.                                                                                                                         |
+| **Tag**                               | A user-defined label on a journal entry (e.g. an information source or strategy); carries a win/loss tally.                                                             |
+| **Evaluate**                          | The action that marks a prediction Win / Loss / Breakeven using the current price.                                                                                      |
+| **Corporate action**                  | An event that changes a ticker symbol (merger, spin-off, rename, etc.).                                                                                                 |
+| **Broker account**                    | One specific account at one broker; a user may have several **across brokers** (Phase 1: one account per broker — multiple accounts within the same broker is Phase 2). |
 | **Admin**                             | Platform operator who corrects shared symbol mappings (broader user management — disable/delete — is deferred; see OQ-H).                                               |
-| **OAuth 2.0 / OpenID Connect (OIDC)** | The industry-standard protocols behind "Sign in with Google" — the identity provider verifies the user and returns a signed proof of identity.                         |
-| **Identity provider**                 | An external service (e.g. Google) that verifies who a user is and vouches for their identity, so Beyond Folio never has to handle passwords itself.                    |
-| **`sub` (subject)**                   | The stable, unique identifier the identity provider assigns to a user; it stays the same across sign-ins, so a returning user is always recognized as the same person. |
-| **First-login provisioning**          | Creating a user's account automatically the first time they successfully sign in (rather than a separate sign-up step).                                                |
+| **OAuth 2.0 / OpenID Connect (OIDC)** | The industry-standard protocols behind "Sign in with Google" — the identity provider verifies the user and returns a signed proof of identity.                          |
+| **Identity provider**                 | An external service (e.g. Google) that verifies who a user is and vouches for their identity, so Beyond Folio never has to handle passwords itself.                     |
+| **`sub` (subject)**                   | The stable, unique identifier the identity provider assigns to a user; it stays the same across sign-ins, so a returning user is always recognized as the same person.  |
+| **First-login provisioning**          | Creating a user's account automatically the first time they successfully sign in (rather than a separate sign-up step).                                                 |
 
 ---
 

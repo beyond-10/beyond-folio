@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "apps/web" },
+    { "path": "services/app-api" },
+    { "path": "services/import-api" },
+    { "path": "services/admin-api" },
+    { "path": "services/auth-api" },
+    { "path": "services/import-worker" },
+    { "path": "packages/shared-types" },
+    { "path": "packages/shared-dynamo" },
+    { "path": "infra" }
+  ]
+}
